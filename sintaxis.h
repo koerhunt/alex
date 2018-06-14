@@ -154,5 +154,23 @@ int MATRIZ_DE_PRODUCCIONES[][59] = {
 };
 
 std::stack<int> ExecucionStack;
+std::stack<int> TmpStack;
 
 int sccol;
+
+void imprimirStack(){
+
+    while(ExecucionStack.size()>0){
+        TmpStack.push(ExecucionStack.top());
+        ExecucionStack.pop();
+    }
+
+    while(TmpStack.size()>0){
+        int el = TmpStack.top();
+        cout<<"--"<<el;
+        ExecucionStack.push(el);
+        TmpStack.pop();
+    }
+    cout<<endl;
+
+}

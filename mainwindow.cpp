@@ -2,19 +2,15 @@
 #include "ui_mainwindow.h"
 #include "analizador.h"
 #include "sintaxis.h"
-
 #include <string.h>
+#include "QMessageBox"
 
-void analiza();
-
+//Variables globales para comunicar lexico con sitactico
 int Ltoken;
 char* Llexema;
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow){
-    ui->setupUi(this);
-
+//Metodo para cargar el archivo al editor
+void MainWindow::CargarArchivoAlEitor(){
     //Abrir el fichero (ruta estatica)
     archivo.open("codigo.lua",std::ios::in);
 
@@ -41,9 +37,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     archivo.close();
     ui->textBrowser->setText(string);
+}
 
+//inicializacion
+void MainWindow::Init(){
 
-    //prepara el archivo para el sintactico
+    //abre archivo
     archivo.open("codigo.lua",ios::in);
 
     //prepara pila de ejecucion
@@ -56,13 +55,24 @@ MainWindow::MainWindow(QWidget *parent) :
         exit(1);
     }
 
+}
+
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow){
+    ui->setupUi(this);
+
+    //cargar archivo al editor de textos
+    MainWindow::CargarArchivoAlEitor();
+    MainWindow::Init();
+
     //Preparar Tabla
     QStringList tablaToken;
-       tablaToken<<"ESTADO"<<"LEXEMA"<<"GRANEMA";
-       ui->tableWidget->setHorizontalHeaderLabels(tablaToken);
-       ui->tableWidget->setColumnWidth(0,80);
-       ui->tableWidget->setColumnWidth(1,400);
-       ui->tableWidget->setColumnWidth(2,400);
+    tablaToken<<"ESTADO"<<"LEXEMA"<<"GRANEMA";
+    ui->tableWidget->setHorizontalHeaderLabels(tablaToken);
+    ui->tableWidget->setColumnWidth(0,80);
+    ui->tableWidget->setColumnWidth(1,400);
+    ui->tableWidget->setColumnWidth(2,400);
     ui->tableWidget->setColumnCount(3);
 
 }
@@ -93,6 +103,7 @@ void MainWindow::on_pushButton_clicked()
 }
 
 //Metodo que trae el siguiente token
+//Analizador Lexico, un token a la vez
 void MainWindow::dameToken(){
 
     //inicializacion de estado
@@ -187,7 +198,7 @@ void MainWindow::dameToken(){
     }
 }
 
-
+//Relaciona tokens de lexico con columnas de sintactico
 int MainWindow::relacionaAlex(int tkn){
     switch(tkn){
         case 101:
@@ -276,85 +287,107 @@ int MainWindow::relacionaAlex(int tkn){
     }
 }
 
+void MainWindow::AnalizaPaso(){
+    //analizar nuevo token
+    MainWindow::dameToken(); // Se Guarda en varaible global Ltoken y Llexema
 
-
-void MainWindow::on_pushButton_2_clicked()
-{
-
-        //analizar nuevo token
-        MainWindow::dameToken(); // Se Guarda en varaible global Ltoken y Llexema
-
-        if(Ltoken==-1){
-            if(ExecucionStack.top()=='$'){
-                ExecucionStack.pop();
-                cout<<"Analisis terminado, sintaxis correcta"<<endl;
-            }else{
-                cout<<"Analisis terminado incorrectamente, se llego al fin de fichero y no termino de analizar"<<endl;
-            }
-            return;
+    if(Ltoken==-1){
+        if(ExecucionStack.top()=='$'){
+            ExecucionStack.pop();
+            QMessageBox msgBox;
+            msgBox.setText("Analisis completado correctamente! la sintaxis es correcta");
+            msgBox.exec();
+        }else{
+            QMessageBox msgBox;
+            msgBox.setText("Analisis terminado incorrectamente, se llego al fin de fichero y no termino de analizar");
+            msgBox.exec();
         }
+        return;
+    }
 
-        int Stoken = MainWindow::relacionaAlex(Ltoken); //regresa elemento correspondiente a sintactico (>=1000)
+    int Stoken = MainWindow::relacionaAlex(Ltoken); //regresa elemento correspondiente a sintactico (>=1000)
 
-        //obtiene columna
-        int rcol = Stoken-1000;
+    //obtiene columna
+    int rcol = Stoken-1000;
 
-        bool found = false;
+    bool found = false;
 
-        while(!found){
+    while(!found){
 
-            if(ExecucionStack.top()>=1000){
+        //imprimirStack(ExecucionStack);
 
-                //elemento terminal
-                if(ExecucionStack.top()==Stoken){
-                    ExecucionStack.pop();
-                    cout<<"elemento encontrado, eliminado"<<endl;
-                    found = true;
-                }else{
-                    cout<<"ERROR DE SINTAXIS, no coinciden los tokens"<<endl;
-                    break;
-                }
+        if(ExecucionStack.top()>=1000){
 
+            //elemento terminal
+            if(ExecucionStack.top()==Stoken){
+                cout<<"Encontrado: "<<Stoken<<endl;
+                ExecucionStack.pop();
+//                cout<<"elemento encontrado, eliminado"<<endl;
+                found = true;
             }else{
+                cout<<"ERROR DE SINTAXIS, no coinciden los tokens"<<endl;
+                break;
+            }
 
-                cout<<"prouccion encontrada, analizando"<<endl;
+        }else{
 
-                cout<<ExecucionStack.top()-1<<","<<rcol<<endl;
-                int elem = MATRIZ_PREDICTIVA[ExecucionStack.top()-1][rcol];
+            //cout<<"prouccion encontrada, analizando"<<endl;
 
-                //sustituye produccion por el contenido inverso de la produccion
-                if(elem!=-1){
+            //cout<<ExecucionStack.top()-1<<","<<rcol<<endl;
+            int elem = MATRIZ_PREDICTIVA[ExecucionStack.top()-1][rcol];
 
-                    //elimina la produccion
-                    ExecucionStack.pop();
+            //sustituye produccion por el contenido inverso de la produccion
+            if(elem!=-1){
 
-                    //insertar producciones a la pila
-                    for(int i=7; i>=0;i--){
+                //elimina la produccion
+                ExecucionStack.pop();
 
-                        int elem2 = MATRIZ_DE_PRODUCCIONES[(elem-1)][i];
+//                cout<<"Inserta: ";
 
-                        //vacio
-                        if(elem2==-1){
-                            break;
-                        }else{
-                            //ignorar el relleno
-                            if(elem2!=0){
-                                ExecucionStack.push(elem2);
-                                cout<<" -- "<<elem2<<" -- ";
-                            }
+                //insertar producciones a la pila
+                for(int i=7; i>=0;i--){
+
+                    int elem2 = MATRIZ_DE_PRODUCCIONES[(elem-1)][i];
+
+                    //vacio
+                    if(elem2==-1){
+//                        cout<<"<vacio>";
+                        break;
+                    }else{
+                        //ignorar el relleno
+                        if(elem2!=0){
+                            ExecucionStack.push(elem2);
+//                            cout<<" -- "<<elem2<<" -- ";
                         }
                     }
-                    cout<<endl;
-                }else{
-                    //error de sintaxis
-                    cout<<"ERROR DE SINTAXIS, camino no encontrado en la matriz"<<endl;
-                    break;
                 }
-
+                cout<<endl;
+            }else{
+                //error de sintaxis
+                QMessageBox msgBox;
+                msgBox.setText("Error de sintaxis");
+                msgBox.exec();
+                break;
             }
+
+        }
+
+        //imprimir pila
+        imprimirStack();
+
 
 
     }
+}
 
+void MainWindow::on_pushButton_3_clicked(){
+    AnalizaPaso();
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    while(Ltoken!=-1){
+        AnalizaPaso();
+    }
 
 }
