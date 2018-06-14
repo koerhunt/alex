@@ -1,51 +1,69 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "analizador.h"
+#include "sintaxis.h"
+
 #include <string.h>
 
 void analiza();
 
+int Ltoken;
+char* Llexema;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
-
+    ui(new Ui::MainWindow){
     ui->setupUi(this);
 
-   QStringList tablaToken;
-   tablaToken<<"ESTADO"<<"LEXEMA"<<"GRANEMA";
-   ui->tableWidget->setHorizontalHeaderLabels(tablaToken);
-   ui->tableWidget->setColumnWidth(0,80);
-   ui->tableWidget->setColumnWidth(1,400);
-   ui->tableWidget->setColumnWidth(2,400);
-   ui->tableWidget->setColumnCount(3);
+    //Abrir el fichero (ruta estatica)
+    archivo.open("codigo.lua",std::ios::in);
 
-      //Aqui el codigo
-      //Abrir el fichero (ruta estatica)
-      archivo.open("codigo.lua",std::ios::in);
+   //si fallo la apertura del archivo
+   //mostrar informacion y salir
+   if(archivo.fail()){
+       archivo.open("codigo.lua",std::ios::out);
+       archivo.close();
+   }
 
-      //si fallo la apertura del archivo
-      //mostrar informacion y salir
-      if(archivo.fail()){
-          archivo.open("codigo.lua",std::ios::out);
-          archivo.close();
-      }
+   //mientras haya caracteres por leer
+   QString string;
+   QChar car;
 
-      //mientras haya caracteres por leer
+   //lee el archivo y lo coloca en nuestro 'editor'
+   while(!archivo.eof()){
+     car = archivo.get();
+     if(car!=-1){
+      string.append(car);
+     }else{
+       break;
+     }
+    }
 
-      QString string;
-      QChar car;
+    archivo.close();
+    ui->textBrowser->setText(string);
 
-      while(!archivo.eof()){
-          car = archivo.get();
-          if(car!=-1){
-              string.append(car);
-          }else{
-              break;
-          }
-      }
-      archivo.close();
-      ui->textBrowser->setText(string);
+
+    //prepara el archivo para el sintactico
+    archivo.open("codigo.lua",ios::in);
+
+    //prepara pila de ejecucion
+    ExecucionStack.push('$'); //$
+    ExecucionStack.push(1);   //program
+
+    //mostrar informacion y salir
+    if(archivo.fail()){
+        cout<<"No se pudo abrir el archivo";
+        exit(1);
+    }
+
+    //Preparar Tabla
+    QStringList tablaToken;
+       tablaToken<<"ESTADO"<<"LEXEMA"<<"GRANEMA";
+       ui->tableWidget->setHorizontalHeaderLabels(tablaToken);
+       ui->tableWidget->setColumnWidth(0,80);
+       ui->tableWidget->setColumnWidth(1,400);
+       ui->tableWidget->setColumnWidth(2,400);
+    ui->tableWidget->setColumnCount(3);
 
 }
 
@@ -54,14 +72,17 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+//metodo para seleccionar un archivo
+//de manera dinamica, pendiente implementacoin
 void MainWindow::openFile(){
     sfileWindow = new selectFileWindow(); // Be sure to destroy your window somewhere
     sfileWindow->show();
 }
 
+//METODO GUARDAR ARCHIVO del editor
 void MainWindow::on_pushButton_clicked()
 {
-//    archivo.open ("codigo.lua");
+    //archivo.open ("codigo.lua");
     QString cadena = MainWindow::ui->textBrowser->toPlainText();
 
     std::string input;
@@ -71,28 +92,27 @@ void MainWindow::on_pushButton_clicked()
     out.close();
 }
 
-void MainWindow::on_pushButton_2_clicked()
-{
-    //ifstream archivo;   //control de flujo del archivo
+//Metodo que trae el siguiente token
+void MainWindow::dameToken(){
 
     //inicializacion de estado
     edo = 0;
 
-    //Abrir el fichero (ruta estatica)
-    archivo.open("codigo.lua",ios::in);
+    //inicializacion de cadenas
+    char *i;
+    i = &lexema[0];
+    while(i<=caux){
+        *i=0x00;
+        i++;
+    }
+    caux = &lexema[0];
 
-    //si fallo la apertura del archivo
-    //mostrar informacion y salir
-    if(archivo.fail()){
-        cout<<"No se pudo abrir el archivo";
-        exit(1);
+    if(archivo.eof()){
+        Ltoken = -1;
     }
 
     //mientras haya caracteres por leer
-    while(!archivo.eof()){
-
-        //reinicializa estado y numero de simbolos
-        edo=0;
+    while(!archivo.eof()&&edo<100){
 
         //se posiciona el puntero al inicio de lexema
         caux = &lexema[0];
@@ -100,11 +120,6 @@ void MainWindow::on_pushButton_2_clicked()
         //mientras no se encuentra em estado terminal
         //analizar
         while(edo<=18){
-
-            //si por alguna razon el automata no concluyo
-            //pero esta en el fin de fichero rompe
-            //if(c==-1)
-              //  break;
 
             //obtenemos siguiente caracter
             c = archivo.get();
@@ -131,8 +146,6 @@ void MainWindow::on_pushButton_2_clicked()
         //ESTOS SON LOS ELEMENTOS QUE NO CONCLUYEN DIRECTAMENTE
         switch(edo){
             case PALABRA_RESERVADA:
-                //si no esta en la lista de palabras reservadas
-                //then edo = 101
                 if(!esLetra(c))popcharacter(c);
                 break;
             case IDENTIFICADOR:
@@ -151,47 +164,197 @@ void MainWindow::on_pushButton_2_clicked()
                 break;
         }
 
-        //Analizamos el resultado del analicis
+        //Analizamos el resultado del analisis
         if(edo>=100&&edo<=132){
-
             elfounds++;
 
+            Ltoken = edo;
+            Llexema = lexema;
+
             ui->tableWidget->insertRow(ui->tableWidget->rowCount());
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,0,new QTableWidgetItem(QString::number(edo)));
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,1,new QTableWidgetItem(lexema));
+            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,0,new QTableWidgetItem(QString::number(Ltoken)));
+            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,1,new QTableWidgetItem(Llexema));
             ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,2,new QTableWidgetItem(Token(edo)));
 
-            cout<<lexema<<endl;
-            cout<<Token(edo)<<endl;
-
-
-            //reinicializa la cadena lexema
-            char *i;
-            i = &lexema[0];
-            while(i<=caux){
-                *i=0x00;
-                i++;
-            }
-            caux = &lexema[0];
 
         }else{
             caux = &lexema[0];
-            ui->tableWidget->insertRow(ui->tableWidget->rowCount());
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,0,new QTableWidgetItem(QString::number(edo)));
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,1,new QTableWidgetItem(""));
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,2,new QTableWidgetItem(Error(edo)));
+        }
+        if(c==-1){
+            Ltoken = -1;
+            break;
+        }
+    }
+}
+
+
+int MainWindow::relacionaAlex(int tkn){
+    switch(tkn){
+        case 101:
+            return 1000;
+        case 102:
+            return 1001;
+        case 103:
+            return 1002;
+        case 104:
+            return 1003;
+        case 105:
+            return 1004;
+        case 106:
+            return 1005;
+        case 107:
+            return 1006;
+        case 108:
+            return 1007;
+        case 109:
+            return 1008;
+        case 110:
+            return 1009;
+        case 111:
+            return 1010;
+        case 112:
+            return 1011;
+        case 113:
+            return 1012;
+        case 114:
+            return 1013;
+        case 115:
+            return 1014;
+        case 116:
+            return 1015;
+        case 117:
+            return 1016;
+        case 118:
+            return 1017;
+        case 119:
+            return 1018;
+        case 120:
+            return 1019;
+        case 121:
+            return 1020;
+        case 122:
+            return 1021;
+        case 123:
+            return 1022;
+        case 124:
+            return 1023;
+        case 125:
+            return 1024;
+        case 126:
+            return 1025;
+        case 127:
+            return 1026;
+        case 128:
+            return 1027;
+        case 129:
+            return 1028;
+        case 130:
+            return 1029;
+        case 131:
+            return 1030;
+        case 132:
+            return 1031;
+        case 100:
+            if(QString::fromUtf8(Llexema)  == "constructor") return 1032;
+            if(QString::fromUtf8(Llexema)  == "int") return 1033;
+            if(QString::fromUtf8(Llexema)  == "float") return 1034;
+            if(QString::fromUtf8(Llexema)  == "char") return 1035;
+            if(QString::fromUtf8(Llexema)  == "string") return 1036;
+            if(QString::fromUtf8(Llexema)  == "commit") return 1037;
+            if(QString::fromUtf8(Llexema)  == "end") return 1038;
+            if(QString::fromUtf8(Llexema)  == "if") return 1039;
+            if(QString::fromUtf8(Llexema)  == "endif") return 1040;
+            if(QString::fromUtf8(Llexema)  == "else") return 1041;
+            if(QString::fromUtf8(Llexema)  == "while") return 1042;
+            if(QString::fromUtf8(Llexema)  == "endwhile") return 1043;
+            if(QString::fromUtf8(Llexema)  == "do") return 1044;
+            if(QString::fromUtf8(Llexema)  == "dowhile") return 1045;
+            if(QString::fromUtf8(Llexema)  == "enddo") return 1046;
+            if(QString::fromUtf8(Llexema)  == "read") return 1047;
+            if(QString::fromUtf8(Llexema)  == "write") return 1048;
+            return 1000; //es identificador
+    }
+}
+
+
+
+void MainWindow::on_pushButton_2_clicked()
+{
+
+        //analizar nuevo token
+        MainWindow::dameToken(); // Se Guarda en varaible global Ltoken y Llexema
+
+        if(Ltoken==-1){
+            if(ExecucionStack.top()=='$'){
+                ExecucionStack.pop();
+                cout<<"Analisis terminado, sintaxis correcta"<<endl;
+            }else{
+                cout<<"Analisis terminado incorrectamente, se llego al fin de fichero y no termino de analizar"<<endl;
+            }
+            return;
         }
 
-        if(c==-1)
-            break;
+        int Stoken = MainWindow::relacionaAlex(Ltoken); //regresa elemento correspondiente a sintactico (>=1000)
+
+        //obtiene columna
+        int rcol = Stoken-1000;
+
+        bool found = false;
+
+        while(!found){
+
+            if(ExecucionStack.top()>=1000){
+
+                //elemento terminal
+                if(ExecucionStack.top()==Stoken){
+                    ExecucionStack.pop();
+                    cout<<"elemento encontrado, eliminado"<<endl;
+                    found = true;
+                }else{
+                    cout<<"ERROR DE SINTAXIS, no coinciden los tokens"<<endl;
+                    break;
+                }
+
+            }else{
+
+                cout<<"prouccion encontrada, analizando"<<endl;
+
+                cout<<ExecucionStack.top()-1<<","<<rcol<<endl;
+                int elem = MATRIZ_PREDICTIVA[ExecucionStack.top()-1][rcol];
+
+                //sustituye produccion por el contenido inverso de la produccion
+                if(elem!=-1){
+
+                    //elimina la produccion
+                    ExecucionStack.pop();
+
+                    //insertar producciones a la pila
+                    for(int i=7; i>=0;i--){
+
+                        int elem2 = MATRIZ_DE_PRODUCCIONES[(elem-1)][i];
+
+                        //vacio
+                        if(elem2==-1){
+                            break;
+                        }else{
+                            //ignorar el relleno
+                            if(elem2!=0){
+                                ExecucionStack.push(elem2);
+                                cout<<" -- "<<elem2<<" -- ";
+                            }
+                        }
+                    }
+                    cout<<endl;
+                }else{
+                    //error de sintaxis
+                    cout<<"ERROR DE SINTAXIS, camino no encontrado en la matriz"<<endl;
+                    break;
+                }
+
+            }
+
 
     }
 
-    //Cantidad de elementos encontrados
-    cout<<"#=====================#"<<endl;
-    cout<<"Elementos encontrados: "<<elfounds<<endl;
-    cout<<"#=====================#"<<endl;
 
-    //Cerramos el archivo
-    archivo.close();
 }

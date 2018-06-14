@@ -8,18 +8,6 @@ selectFileWindow::selectFileWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //Abrimos el directorio
-    //dirdata = opendir("/home/shikami");
-
-    //Mientras contenga elementos en el interior
-    //while ((dp = readdir(dirdata)) != NULL){
-        //ui->filetree.appendChildItem();
-        //dp->d_name
-    //};
-
-    //Cerramos directorio
-    //closedir(dirdata);
-
 }
 
 selectFileWindow::~selectFileWindow()

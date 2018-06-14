@@ -26,12 +26,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    selectfilewindow.cpp
+    selectfilewindow.cpp \
+    sintaxis.cpp
 
 HEADERS += \
         mainwindow.h \
     selectfilewindow.h \
-    analizador.h
+    analizador.h \
+    sintaxis.h
 
 FORMS += \
         mainwindow.ui \

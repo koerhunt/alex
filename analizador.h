@@ -21,13 +21,6 @@
 
 #define NOT 119
 
-//int analiza();
-//int relaciona(char);
-//void popcharacter(char);
-//bool esNumero(char);
-//bool esLetra(char);
-//bool esGuionBajo(char);
-
 //Variables para el manejo de archivo
 ifstream archivo;   //control de flujo del archivo
 char c;             //caracter actual leido
@@ -243,6 +236,7 @@ char* Token(int edo){
         }
     }
 }
+
 //Funcion de relacion de caracter
 int relaciona(char c)
 {
@@ -327,7 +321,6 @@ int relaciona(char c)
     }
 
 }
-
 
 //Funcion para extraer el ultimo caracter de la cadena
 //lexema y volver a analizar el simbolo

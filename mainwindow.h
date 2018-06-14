@@ -29,6 +29,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
     selectFileWindow *sfileWindow;
+    void dameToken();
+    int relacionaAlex(int);
 };
 
 #endif // MAINWINDOW_H
