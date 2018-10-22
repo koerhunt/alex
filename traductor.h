@@ -3,6 +3,8 @@
 #endif // TRADUCTOR_H
 
 #include <stack>
+#include <stdlib.h>     /* malloc, free, rand */
+#include <stdio.h>
 
 //Valores para los tipos de datos
 enum tipos{
@@ -51,6 +53,9 @@ struct simbolosRow{
 typedef struct cuadruplo Cuadruplo;
 typedef struct simbolosRow SimbolosRow;
 
+typedef Cuadruplo *CuadruploPtr;
+typedef SimbolosRow *SimbolosRowPtr;
+
 //pila de operadores
 static std::stack<int> POperadores;
 
@@ -76,24 +81,43 @@ static int SimbolosCount =0;
 static int CuadruplosCount = 0;
 
 //raiz de la estructura
-static Cuadruplo cuadruplos;
+CuadruploPtr cuadruplos;
 
 //Ultimo elemento de la lista de cuadruplos
-static Cuadruplo FinalCuadruplo;
+CuadruploPtr FinalCuadruplo;
 
 //elemento final de la tabla de simbolos
-static SimbolosRow FinalElemTS;
+SimbolosRow FinalElemTS;
 
 //raiz de la tabla de simbolos
-static SimbolosRow TDS;
+SimbolosRow TDS;
+
+//declaracion de funciones
+
+void generarCuadruplo(cops cop, int op1, int op2, int res);
+CuadruploPtr buscarCuadruplo(int addr);
+
+void pushPO(int codeid, char* lexema);
+SimbolosRowPtr buscarOp(int address);
+
+//void a(){
+//    SimbolosRowPtr tmpNode;
+
+//    //alojar un espacio para un nodo
+//    tmpNode = (SimbolosRowPtr) malloc(sizeof(SimbolosRow));
+
+//    if(tmpNode!=nullptr){
+//        //espacio alojado
+
+//    }else{
+//        //memoria insuficiente
+//    }
+//    //liberar espacio de memoria
+//    free(tmpNode);
+//}
 
 //TODO ACCIONES
 
-//TODO func generarCuadruplo()
-//TODO func rellenar()
-
-//TODO obtenerVariable
-//TODO obtenerConstante
-//TODO declararVariable
-//TODO declararConstante
+//TODO GenerarCuadruplo()
+//TODO buscarCuadruplo()
 
