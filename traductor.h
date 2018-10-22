@@ -4,6 +4,53 @@
 
 #include <stack>
 
+//Valores para los tipos de datos
+enum tipos{
+    ENTERO=2501,
+    FLOTANTE,
+    CARACTER,
+    CADENA
+};
+
+//Valores para los codigos de operacion
+enum cops{
+    INPUT = 3000,
+    OUTPUT,
+    ASIG,
+    OR,
+    AND,
+    DIF,
+    PLUS,
+    MINUS,
+    MULT,
+    DIV,
+    MODULUS
+};
+
+//nodo de Estructura de cuadruplos
+struct cuadruplo {
+    int key;
+    cops cop;
+    int op1;
+    int op2;
+    int resl;
+    struct cuadruplo *next2;
+};
+
+//nodo de Estructura de renglon de tabla de simbolos
+struct simbolosRow{
+    int addr;
+    int desc;
+    tipos type;
+    int *apram;
+    int *apnext;
+    struct simbolosRow *next2;
+};
+
+//Definiciones de tipos
+typedef struct cuadruplo Cuadruplo;
+typedef struct simbolosRow SimbolosRow;
+
 //pila de operadores
 static std::stack<int> POperadores;
 
@@ -28,8 +75,19 @@ static int SimbolosCount =0;
 //contador de cuadruplos
 static int CuadruplosCount = 0;
 
-struct a;
-//TODO {Estructura de cuadruplos}
+//raiz de la estructura
+static Cuadruplo cuadruplos;
+
+//Ultimo elemento de la lista de cuadruplos
+static Cuadruplo FinalCuadruplo;
+
+//elemento final de la tabla de simbolos
+static SimbolosRow FinalElemTS;
+
+//raiz de la tabla de simbolos
+static SimbolosRow TDS;
+
+//TODO ACCIONES
 
 //TODO func generarCuadruplo()
 //TODO func rellenar()
@@ -38,5 +96,4 @@ struct a;
 //TODO obtenerConstante
 //TODO declararVariable
 //TODO declararConstante
-//TODO COP
-//TODO ACCIONES
+

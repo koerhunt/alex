@@ -324,7 +324,7 @@ void MainWindow::AnalizaPaso(){
 
             //es elemento terminal
             if(ExecucionStack.top()==Stoken){
-                cout<<"Encontrado: "<<Stoken<<endl;
+                cout<<"pop: "<<Stoken<<endl;
                 ExecucionStack.pop();
                 //cout<<"elemento encontrado, eliminado"<<endl;
                 found = true;
@@ -345,11 +345,13 @@ void MainWindow::AnalizaPaso(){
                 }
             }
 
+            imprimirStack();
+
         }else{
 
             //es elemento no terminal
 
-            //cout<<"prouccion encontrada, analizando"<<endl;
+            cout<<"prouccion encontrada, analizando"<<"["<<ExecucionStack.top()-1<<"]"<<"["<<rcol<<"]"<<endl;
 
             //cout<<ExecucionStack.top()-1<<","<<rcol<<endl;
             int elem = MATRIZ_PREDICTIVA[ExecucionStack.top()-1][rcol];
@@ -357,23 +359,27 @@ void MainWindow::AnalizaPaso(){
             //sustituye produccion por el contenido inverso de la produccion
             if(elem!=-1){
 
+                imprimirStack();
+
                 //elimina la produccion
                 ExecucionStack.pop();
 
                 //insertar producciones a la pila
-                for(int i=8; i>=0;i--){
+                for(int i=9; i>=0;i--){
 
                     int elem2 = MATRIZ_DE_PRODUCCIONES[(elem-1)][i];
 
+
+
                     //vacio
                     if(elem2==-1){
-//                        cout<<"Encontrado:"<<"<vacio>";
+                        cout<<"<extrae elemento>";
                         break;
                     }else{
                         //ignorar el relleno
                         if(elem2!=0){
                             ExecucionStack.push(elem2);
-//                            cout<<" -- "<<elem2<<" -- ";
+                            cout<<elem2<<" ";
                         }
                     }
                 }
@@ -391,7 +397,7 @@ void MainWindow::AnalizaPaso(){
         }
 
         //imprimir pila
-        imprimirStack();
+//        imprimirStack();
 
     }
 }
@@ -407,5 +413,4 @@ void MainWindow::on_pushButton_2_clicked()
     while(Ltoken!=-1){
         AnalizaPaso();
     }
-
 }

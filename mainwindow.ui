@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>986</width>
-    <height>374</height>
+    <height>479</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>340</x>
-      <y>280</y>
+      <y>370</y>
       <width>121</width>
       <height>24</height>
      </rect>
@@ -32,8 +32,8 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>451</width>
-      <height>261</height>
+      <width>441</width>
+      <height>341</height>
      </rect>
     </property>
     <property name="readOnly">
@@ -44,7 +44,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>280</y>
+      <y>370</y>
       <width>101</width>
       <height>24</height>
      </rect>
@@ -59,7 +59,7 @@
       <x>470</x>
       <y>10</y>
       <width>501</width>
-      <height>301</height>
+      <height>341</height>
      </rect>
     </property>
    </widget>
@@ -79,7 +79,7 @@
      <x>0</x>
      <y>0</y>
      <width>986</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuArchivo">
