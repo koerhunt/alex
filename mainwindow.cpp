@@ -4,6 +4,7 @@
 #include "sintaxis.h"
 #include <string.h>
 #include "QMessageBox"
+#include "traductor.h"
 
 //Variables globales para comunicar lexico con sitactico
 static int Ltoken;
@@ -368,8 +369,6 @@ void MainWindow::AnalizaPaso(){
                 for(int i=9; i>=0;i--){
 
                     int elem2 = MATRIZ_DE_PRODUCCIONES[(elem-1)][i];
-
-
 
                     //vacio
                     if(elem2==-1){
