@@ -6,26 +6,27 @@
 #include "QMessageBox"
 
 //Variables globales para comunicar lexico con sitactico
-int Ltoken;
-char* Llexema;
+static int Ltoken;
+static char* Llexema;
+
+static const char* ARCHIVO = "/home/shikami/codigo.lex";
 
 //Metodo para cargar el archivo al editor
-void MainWindow::CargarArchivoAlEitor(){
-    //Abrir el fichero (ruta estatica)
-    archivo.open("codigo.lua",std::ios::in);
+void MainWindow::CargarArchivoAlEditor(){
+
+   //Abrir el fichero (ruta estatica)
+   archivo.open(ARCHIVO,std::ios::in);
 
    //si fallo la apertura del archivo
    //mostrar informacion y salir
    if(archivo.fail()){
-       archivo.open("codigo.lua",std::ios::out);
+       archivo.open(ARCHIVO,std::ios::out);
        archivo.close();
    }
 
-   //mientras haya caracteres por leer
+   //lee el archivo y lo coloca en nuestro 'editor'
    QString string;
    QChar car;
-
-   //lee el archivo y lo coloca en nuestro 'editor'
    while(!archivo.eof()){
      car = archivo.get();
      if(car!=-1){
@@ -35,19 +36,20 @@ void MainWindow::CargarArchivoAlEitor(){
      }
     }
 
-    archivo.close();
-    ui->textBrowser->setText(string);
+
+   archivo.close();
+   ui->textBrowser->setText(string);
 }
 
 //inicializacion
 void MainWindow::Init(){
 
     //abre archivo
-    archivo.open("codigo.lua",ios::in);
+    archivo.open(ARCHIVO,ios::in);
 
     //prepara pila de ejecucion
-    ExecucionStack.push('$'); //$
-    ExecucionStack.push(1);   //program
+    ExecucionStack.push('$'); //$ [fin de fichero]
+    ExecucionStack.push(1);   //produccion program
 
     //mostrar informacion y salir
     if(archivo.fail()){
@@ -63,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     //cargar archivo al editor de textos
-    MainWindow::CargarArchivoAlEitor();
+    MainWindow::CargarArchivoAlEditor();
     MainWindow::Init();
 
     //Preparar Tabla
@@ -97,7 +99,7 @@ void MainWindow::on_pushButton_clicked()
 
     std::string input;
     input = cadena.toStdString();
-    std::ofstream out("codigo.lua");
+    std::ofstream out("codigo.lex");
     out << input;
     out.close();
 }
@@ -186,7 +188,6 @@ void MainWindow::dameToken(){
             ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,0,new QTableWidgetItem(QString::number(Ltoken)));
             ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,1,new QTableWidgetItem(Llexema));
             ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,2,new QTableWidgetItem(Token(edo)));
-
 
         }else{
             caux = &lexema[0];
@@ -288,9 +289,11 @@ int MainWindow::relacionaAlex(int tkn){
 }
 
 void MainWindow::AnalizaPaso(){
+
     //analizar nuevo token
     MainWindow::dameToken(); // Se Guarda en varaible global Ltoken y Llexema
 
+    //Analizar estado de terminacion, si lo hay
     if(Ltoken==-1){
         if(ExecucionStack.top()=='$'){
             ExecucionStack.pop();
@@ -305,7 +308,8 @@ void MainWindow::AnalizaPaso(){
         return;
     }
 
-    int Stoken = MainWindow::relacionaAlex(Ltoken); //regresa elemento correspondiente a sintactico (>=1000)
+    //regresa elemento correspondiente a sintactico (>=1000)
+    int Stoken = MainWindow::relacionaAlex(Ltoken);
 
     //obtiene columna
     int rcol = Stoken-1000;
@@ -318,18 +322,32 @@ void MainWindow::AnalizaPaso(){
 
         if(ExecucionStack.top()>=1000){
 
-            //elemento terminal
+            //es elemento terminal
             if(ExecucionStack.top()==Stoken){
                 cout<<"Encontrado: "<<Stoken<<endl;
                 ExecucionStack.pop();
-//                cout<<"elemento encontrado, eliminado"<<endl;
+                //cout<<"elemento encontrado, eliminado"<<endl;
                 found = true;
             }else{
-                cout<<"ERROR DE SINTAXIS, no coinciden los tokens"<<endl;
-                break;
+                //es accion (traduccion
+                if(ExecucionStack.top()>=2000&&ExecucionStack.top()<=2500){
+
+                    //TODO EjecutarAccion(ExecucionStack.pop())
+                    cout<<"ACCION ENCONTRADA: "<<ExecucionStack.top()<<endl;
+                    ExecucionStack.pop();
+//                    break;
+
+                }else{
+                    cout<<"ERROR DE SINTAXIS, no coinciden los tokens"<<endl;
+                    cout<<"En pila: "<<ExecucionStack.top()<<endl;
+                    cout<<"Encontrado: "<<Stoken<<endl;
+                    break;
+                }
             }
 
         }else{
+
+            //es elemento no terminal
 
             //cout<<"prouccion encontrada, analizando"<<endl;
 
@@ -342,16 +360,14 @@ void MainWindow::AnalizaPaso(){
                 //elimina la produccion
                 ExecucionStack.pop();
 
-//                cout<<"Inserta: ";
-
                 //insertar producciones a la pila
-                for(int i=7; i>=0;i--){
+                for(int i=8; i>=0;i--){
 
                     int elem2 = MATRIZ_DE_PRODUCCIONES[(elem-1)][i];
 
                     //vacio
                     if(elem2==-1){
-//                        cout<<"<vacio>";
+//                        cout<<"Encontrado:"<<"<vacio>";
                         break;
                     }else{
                         //ignorar el relleno
@@ -362,8 +378,10 @@ void MainWindow::AnalizaPaso(){
                     }
                 }
                 cout<<endl;
+
             }else{
                 //error de sintaxis
+                cout<<elem<<endl;
                 QMessageBox msgBox;
                 msgBox.setText("Error de sintaxis");
                 msgBox.exec();
@@ -375,10 +393,10 @@ void MainWindow::AnalizaPaso(){
         //imprimir pila
         imprimirStack();
 
-
-
     }
 }
+
+//Metodos de la GUI
 
 void MainWindow::on_pushButton_3_clicked(){
     AnalizaPaso();

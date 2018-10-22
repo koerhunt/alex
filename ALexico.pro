@@ -32,7 +32,8 @@ HEADERS += \
         mainwindow.h \
     selectfilewindow.h \
     analizador.h \
-    sintaxis.h
+    sintaxis.h \
+    traductor.h
 
 FORMS += \
         mainwindow.ui \

@@ -14,7 +14,7 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 public slots:
@@ -30,7 +30,7 @@ private:
     selectFileWindow *sfileWindow;
     void dameToken();
     int relacionaAlex(int);
-    void CargarArchivoAlEitor();
+    void CargarArchivoAlEditor();
     void Init();
     void AnalizaPaso();
 };
