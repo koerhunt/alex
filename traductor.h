@@ -62,6 +62,8 @@ typedef struct simbolosRow SimbolosRow;
 typedef Cuadruplo *CuadruploPtr;
 typedef SimbolosRow *SimbolosRowPtr;
 
+//PILAS
+
 //pila de operadores
 static std::stack<cops> POperadores;
 
@@ -78,7 +80,7 @@ static std::stack<int> PAvail;
 static std::stack<int> PSaltos;
 
 //contador de la estructura de declaracion
-static int DecAux = 0;
+static tipos DecAux;
 
 //contador de la estructura de la tabla de simbolos
 static int SimbolosCount = 3500;
@@ -100,7 +102,7 @@ static SimbolosRowPtr TDS;
 
 //declaracion de funciones
 
-void generarCuadruplo(cops, int , int , int );
+void generarCuadruplo(cops,int,int,int);
 CuadruploPtr buscarCuadruplo(int );
 
 void pushPO(int, char*);
@@ -109,14 +111,26 @@ SimbolosRowPtr buscarOp(int);
 int buscarIdEnTDS(char*);
 int buscarODeclararEnTDS(int,char*);
 void ejecutarAccion(int);
-int obtenerAvail();
 bool esAvail(int);
+int obtenerAvail();
 void liberarAvail(int);
 
 //Implementacion de funciones
 
-//TODO obtenerAvail
-//TODO liberarAvail()
+//TODO Obtener AVAIL
+int obtenerAvail(){
+    return 5550;
+}
+
+//TODO liberar avail
+void liberarAvail(int){
+
+}
+
+//TODO generar cuadruplo
+void generarCuadruplo(cops cop,int op1,int op2,int res){
+
+}
 
 //identifica si la direccion pertenece al avail
 bool esAvail(int n){
@@ -242,7 +256,6 @@ void pushPO(int codeid, char *lexema){
 
 //TODO buscarCuadruplo()
 //TODO GenerarCuadruplo()
-
 
 void ACTION_2012(int codeid){
     switch (codeid) {

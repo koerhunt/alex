@@ -1,8 +1,10 @@
 #include <stdio.h>
-#include<iostream>
-#include<stdlib.h>
-#include<string.h>
-#include<fstream>
+#include <iostream>
+#include <stdlib.h>
+#include <string.h>
+#include <fstream>
+
+using namespace std;
 
 //DEFINICIONES, SIMBOLOS QUE CONCLUYEN CON UN 'DIFERENTE'
 #define PALABRA_RESERVADA 100
@@ -10,31 +12,29 @@
 #define CONSTANTE_NUMERICA_ENTERA 102
 #define CONSTANTE_NUMERICA_REAL 103
 #define CONSTANTE_NUMERICA_NC 104
-
 #define ASIGNACION 120
 #define MAYOR_QUE 122
 #define MENOR_QUE 124
-
 #define NOT 119
 
 //Variables para el manejo de archivo
-ifstream archivo;   //control de flujo del archivo
-char c;             //caracter actual leido
+static ifstream archivo;   //control de flujo del archivo
+static char c;             //caracter actual leido
 
 //variables del programa
-int edo;            //estado de transicion actual
-int col;            //columna (equivalente )
-int elfounds;       //contador de elementos encontrados
+static int edo;            //estado de transicion actual
+static int col;            //columna (equivalente )
+static int elfounds;       //contador de elementos encontrados
 
 //varibales casos
-int c1;             //numero de simbolos analizados por elemento encontrado
+static int c1;             //numero de simbolos analizados por elemento encontrado
 
-char lexema[256];   //arreglo char (cadena) que contendra el nombre del lexema
-char *caux;         //apuntador para almacenar el caracter actual sobre el arreglo lexema
+static char lexema[256];   //arreglo char (cadena) que contendra el nombre del lexema
+static char *caux;         //apuntador para almacenar el caracter actual sobre el arreglo lexema
 
 
 //Tabla de transicion
-int TTABLE[19][33] = {
+static int TTABLE[19][33] = {
     //       l,  d,  _,  E,  e,  +,  -,  *,  /,  %,  (,  ),  [,  ],  {,  },  &,  |,  !,  =,  >,  <,  ,,  ;, :,   .,  #,  ',  ", /n, /t, /b, =/
     /*00*/{  1,  3,500,  1,  1,105,106,107,108,109,110,111,112,113,114,115,  9, 10, 11, 12, 13, 14,126,127,128,129, 15, 16, 18,  0,  0,  0,500},
     /*01*/{  1,  2,  2,  1,  1,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100},

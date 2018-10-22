@@ -6,11 +6,16 @@
 #include "QMessageBox"
 #include "traductor.h"
 
+#define LEXICO_DEBUG false
+#define SINTACTICO_DEBUG false
+#define ACCIONES_DEBUG false
+
 //Variables globales para comunicar lexico con sitactico
 static int Ltoken;
 static char* Llexema;
 
-static const char* ARCHIVO = "/home/shikami/codigo.lex";
+//Ubicacion del archivo de codigo
+char* ARCHIVO = "/home/shikami/codigo.lex";
 
 //Metodo para cargar el archivo al editor
 void MainWindow::CargarArchivoAlEditor(){
@@ -71,12 +76,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Preparar Tabla
     QStringList tablaToken;
-    tablaToken<<"ESTADO"<<"LEXEMA"<<"GRANEMA";
+    tablaToken<<"ESTADO"<<"LEXEMA"<<"GRANEMA"<<"SINTACTICO"<<"ADAPTADO";
     ui->tableWidget->setHorizontalHeaderLabels(tablaToken);
     ui->tableWidget->setColumnWidth(0,80);
     ui->tableWidget->setColumnWidth(1,400);
     ui->tableWidget->setColumnWidth(2,400);
-    ui->tableWidget->setColumnCount(3);
+    ui->tableWidget->setColumnWidth(3,400);
+    ui->tableWidget->setColumnCount(4);
 
 }
 
@@ -86,23 +92,30 @@ MainWindow::~MainWindow()
 }
 
 //metodo para seleccionar un archivo
-//de manera dinamica, pendiente implementacoin
+//de manera dinamica
 void MainWindow::openFile(){
-    sfileWindow = new selectFileWindow(); // Be sure to destroy your window somewhere
-    sfileWindow->show();
+    //TODO cargar archivo de manera externa
+}
+
+void MainWindow::guardarArchivo(){
+    //se rescata la informacion del textbox
+    QString cadena = MainWindow::ui->textBrowser->toPlainText();
+    std::string input;
+    input = cadena.toStdString();
+
+    std::ofstream out(ARCHIVO);
+    out << input;
+    out.close();
 }
 
 //METODO GUARDAR ARCHIVO del editor
 void MainWindow::on_pushButton_clicked()
 {
-    //archivo.open ("codigo.lua");
-    QString cadena = MainWindow::ui->textBrowser->toPlainText();
+    guardarArchivo();
+    QMessageBox msgBox;
+    msgBox.setText("Archivo guardado correctamente");
+    msgBox.exec();
 
-    std::string input;
-    input = cadena.toStdString();
-    std::ofstream out("codigo.lex");
-    out << input;
-    out.close();
 }
 
 //Metodo que trae el siguiente token
@@ -150,8 +163,10 @@ void MainWindow::dameToken(){
                 col = 32;
             }
 
-            //debug
-            //cout<<"sym:"<<c<<",edo:"<<edo<<",col:"<<col<<",goto:"<<TTABLE[edo][col]<<endl;
+            //lexico debug
+            if(LEXICO_DEBUG){
+                cout<<"sym:"<<c<<",edo:"<<edo<<",col:"<<col<<",goto:"<<TTABLE[edo][col]<<endl;
+            }
 
             //Avanza al siguiente estado
             edo = TTABLE[edo][col];
@@ -189,6 +204,7 @@ void MainWindow::dameToken(){
             ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,0,new QTableWidgetItem(QString::number(Ltoken)));
             ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,1,new QTableWidgetItem(Llexema));
             ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,2,new QTableWidgetItem(Token(edo)));
+            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,3,new QTableWidgetItem(QString::number(relacionaAlex(Ltoken))));
 
         }else{
             caux = &lexema[0];
@@ -302,6 +318,9 @@ void MainWindow::AnalizaPaso(){
             msgBox.setText("Analisis completado correctamente! la sintaxis es correcta");
             msgBox.exec();
         }else{
+            while(!ExecucionStack.empty()){
+                ExecucionStack.pop();
+            }
             QMessageBox msgBox;
             msgBox.setText("Analisis terminado incorrectamente, se llego al fin de fichero y no termino de analizar");
             msgBox.exec();
@@ -325,9 +344,15 @@ void MainWindow::AnalizaPaso(){
 
             //es elemento terminal
             if(ExecucionStack.top()==Stoken){
-                cout<<"pop: "<<Stoken<<endl;
+
+                if(SINTACTICO_DEBUG){
+                    cout<<"pop: "<<Stoken<<endl;
+                }
+
                 ExecucionStack.pop();
-                //cout<<"elemento encontrado, eliminado"<<endl;
+                if(SINTACTICO_DEBUG){
+                    cout<<"elemento encontrado, eliminado"<<endl;
+                }
                 found = true;
             }else{
                 //es accion (traduccion
@@ -335,8 +360,8 @@ void MainWindow::AnalizaPaso(){
 
                     //TODO EjecutarAccion(ExecucionStack.pop())
                     cout<<"ACCION ENCONTRADA: "<<ExecucionStack.top()<<endl;
+
                     ExecucionStack.pop();
-//                    break;
 
                 }else{
                     cout<<"ERROR DE SINTAXIS, no coinciden los tokens"<<endl;
@@ -346,13 +371,16 @@ void MainWindow::AnalizaPaso(){
                 }
             }
 
-            imprimirStack();
+            if(SINTACTICO_DEBUG){
+                imprimirStack(ExecucionStack);
+            }
 
         }else{
 
             //es elemento no terminal
-
-            cout<<"prouccion encontrada, analizando"<<"["<<ExecucionStack.top()-1<<"]"<<"["<<rcol<<"]"<<endl;
+            if(SINTACTICO_DEBUG){
+                cout<<"prouccion encontrada, analizando"<<"["<<ExecucionStack.top()-1<<"]"<<"["<<rcol<<"]"<<endl;
+            }
 
             //cout<<ExecucionStack.top()-1<<","<<rcol<<endl;
             int elem = MATRIZ_PREDICTIVA[ExecucionStack.top()-1][rcol];
@@ -360,7 +388,9 @@ void MainWindow::AnalizaPaso(){
             //sustituye produccion por el contenido inverso de la produccion
             if(elem!=-1){
 
-                imprimirStack();
+                if(SINTACTICO_DEBUG){
+                    imprimirStack(ExecucionStack);
+                }
 
                 //elimina la produccion
                 ExecucionStack.pop();
@@ -372,21 +402,28 @@ void MainWindow::AnalizaPaso(){
 
                     //vacio
                     if(elem2==-1){
-                        cout<<"<extrae elemento>";
+                        if(SINTACTICO_DEBUG){
+                            cout<<"<extrae elemento>";
+                        }
                         break;
                     }else{
                         //ignorar el relleno
                         if(elem2!=0){
                             ExecucionStack.push(elem2);
-                            cout<<elem2<<" ";
+                            if(SINTACTICO_DEBUG){
+                                cout<<elem2<<" ";
+                            }
                         }
                     }
                 }
-                cout<<endl;
+
+                if(SINTACTICO_DEBUG){
+                    cout<<endl;
+                }
 
             }else{
                 //error de sintaxis
-                cout<<elem<<endl;
+                cout<<"ERR --> "<<elem<<endl;
                 QMessageBox msgBox;
                 msgBox.setText("Error de sintaxis");
                 msgBox.exec();
@@ -395,8 +432,6 @@ void MainWindow::AnalizaPaso(){
 
         }
 
-        //imprimir pila
-//        imprimirStack();
 
     }
 }
@@ -409,7 +444,10 @@ void MainWindow::on_pushButton_3_clicked(){
 
 void MainWindow::on_pushButton_2_clicked()
 {
+    guardarArchivo();
+
     while(Ltoken!=-1){
         AnalizaPaso();
     }
+
 }

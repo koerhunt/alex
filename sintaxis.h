@@ -1,8 +1,12 @@
 #ifndef SINTAXIS_H
 #define SINTAXIS_H
-#endif // SINTAXIS_H
+#endif
 
 #include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+
+using namespace std;
 
 //Matriz predictiva del lenguaje
 static int MATRIZ_PREDICTIVA[][51] = {
@@ -157,26 +161,22 @@ static int MATRIZ_DE_PRODUCCIONES[][92] = {
 //pila de ejecucion
 static std::stack<int> ExecucionStack;
 
-//???
-static int sccol;
-
 
 //pila para debugear
 static std::stack<int> TmpStack;
 
-//funcion auxiliar para imprimir una pila sin
-//modificarla
-void imprimirStack(){
+//funcion auxiliar para imprimir una pila sin modificarla
+void imprimirStack(std::stack<int> stk){
 
-    while(ExecucionStack.size()>0){
-        TmpStack.push(ExecucionStack.top());
-        ExecucionStack.pop();
+    while(stk.size()>0){
+        TmpStack.push(stk.top());
+        stk.pop();
     }
 
     while(TmpStack.size()>0){
         int el = TmpStack.top();
         cout<<"--"<<el;
-        ExecucionStack.push(el);
+        stk.push(el);
         TmpStack.pop();
     }
     cout<<endl;

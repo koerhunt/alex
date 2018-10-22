@@ -33,6 +33,7 @@ private:
     void CargarArchivoAlEditor();
     void Init();
     void AnalizaPaso();
+    void guardarArchivo();
 };
 
 #endif // MAINWINDOW_H
