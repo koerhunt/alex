@@ -42,7 +42,7 @@ struct cuadruplo {
 //nodo de Estructura de renglon de tabla de simbolos
 struct simbolosRow{
     int addr;
-    int desc;
+    char *desc;
     tipos type;
     int *apram;
     int *apnext;
@@ -87,37 +87,138 @@ CuadruploPtr cuadruplos;
 CuadruploPtr FinalCuadruplo;
 
 //elemento final de la tabla de simbolos
-SimbolosRow FinalElemTS;
+SimbolosRowPtr FinalElemTS;
 
 //raiz de la tabla de simbolos
-SimbolosRow TDS;
+SimbolosRowPtr TDS;
 
 //declaracion de funciones
 
-void generarCuadruplo(cops cop, int op1, int op2, int res);
-CuadruploPtr buscarCuadruplo(int addr);
+void generarCuadruplo(cops, int , int , int );
+CuadruploPtr buscarCuadruplo(int );
 
-void pushPO(int codeid, char* lexema);
-SimbolosRowPtr buscarOp(int address);
+void pushPO(int, char*);
+SimbolosRowPtr buscarOp(int);
 
-//void a(){
-//    SimbolosRowPtr tmpNode;
+int buscarIdEnTDS(char*);
+int buscarODeclararEnTDS(int,char*);
 
-//    //alojar un espacio para un nodo
-//    tmpNode = (SimbolosRowPtr) malloc(sizeof(SimbolosRow));
-
-//    if(tmpNode!=nullptr){
-//        //espacio alojado
-
-//    }else{
-//        //memoria insuficiente
-//    }
-//    //liberar espacio de memoria
-//    free(tmpNode);
-//}
 
 //TODO ACCIONES
 
-//TODO GenerarCuadruplo()
+//devuelve la direccion del id
+//o devuelve -1 si no lo encontro
+int buscarIdEnTDS(char *lexema){
+
+    SimbolosRowPtr node;
+    node = TDS;
+
+    if(node!=nullptr){
+      //recorrer la lista en busca del elemento
+      do{
+        if(node->desc==lexema){
+            return node->addr;
+        }
+        node = node->next2;
+      }while(node!=nullptr);
+    }
+
+    return -1;
+}
+
+int buscarODeclararEnTDS(int codeid,char *lexema){
+
+    //busca si se encuentra alguna entrada
+    int baddr = buscarIdEnTDS(lexema);
+
+    //si no se encontro
+    if(baddr==-1){
+        //declarar
+
+        SimbolosRowPtr newPtr; //nuevo nodo
+
+        //reservar espacio para nuevo nodo
+        newPtr = (SimbolosRowPtr) malloc(sizeof(SimbolosRow));
+
+        if(newPtr!=nullptr){
+            //si hay espacio en memoria
+
+            newPtr->addr = SimbolosCount;
+            newPtr->desc = lexema;
+
+            switch(codeid){
+                case 1001:
+                    newPtr->type = ENTERO;
+                    break;
+                case 1002:
+                    newPtr->type = FLOTANTE;
+                    break;
+                case 1003:
+                    newPtr->type = FLOTANTE;
+                    break;
+                case 1030:
+                    newPtr->type = CARACTER;
+                    break;
+                case 1031:
+                    newPtr->type = CADENA;
+                    break;
+            }
+
+            if(TDS==nullptr){
+              //lista vacia, crear primer elemento
+              TDS = newPtr;
+              FinalElemTS = newPtr;
+            }else{
+                FinalElemTS->next2 = newPtr;
+                FinalElemTS = newPtr;
+            }
+
+            //incrementar contador de la tabla de simbolos
+            SimbolosCount++;
+
+            //retornar la direccion declarada
+            return newPtr->addr;
+        }else{
+            throw "no hay espacio disponible en memoria";
+        }
+    }else{
+        //si encontro, retornar la direccion
+        return baddr;
+    }
+}
+
+void pushPO(int codeid, char *lexema){
+
+    if(codeid==1000){
+
+        //es id
+        int addr = buscarIdEnTDS(lexema);
+
+        if(addr>=0){
+            //direccion valida
+            POperandos.push(addr);
+
+        }else{
+            //el elemento no existe
+            throw "variable no declarada";
+        }
+
+    }else{
+        if(codeid==1001||codeid==1002||codeid==1003||codeid==1030||codeid==1031){
+            //es constante numerica
+
+            int addr = buscarODeclararEnTDS(codeid,lexema);
+            POperandos.push(addr);
+
+        }else{
+            //simbolo no reconocido
+            throw "Simbolo no apto para la pila de operandos";
+        }
+    }
+
+}
+
+
 //TODO buscarCuadruplo()
 
+//TODO GenerarCuadruplo()
