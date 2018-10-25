@@ -5,6 +5,10 @@
 #include <stack>
 #include <stdlib.h>     /* malloc, free, rand */
 #include <stdio.h>
+#include <iostream>
+#include <string.h>
+
+using namespace std;
 
 //Valores para los tipos de datos
 enum tipos{
@@ -47,20 +51,20 @@ struct cuadruplo {
 
 //nodo de Estructura de renglon de tabla de simbolos
 struct simbolosRow{
-    int addr;
-    char *desc;
     tipos type;
+    int count;
+    string desc;
     int *apram;
     int *apnext;
     struct simbolosRow *next2;
 };
 
 //Definiciones de tipos
-typedef struct cuadruplo Cuadruplo;
 typedef struct simbolosRow SimbolosRow;
-
-typedef Cuadruplo *CuadruploPtr;
 typedef SimbolosRow *SimbolosRowPtr;
+
+typedef struct cuadruplo Cuadruplo;
+typedef Cuadruplo *CuadruploPtr;
 
 //PILAS
 
@@ -110,26 +114,115 @@ SimbolosRowPtr buscarOp(int);
 
 int buscarIdEnTDS(char*);
 int buscarODeclararEnTDS(int,char*);
+//TODO buscar AddrEnTDS
+
 void ejecutarAccion(int);
 bool esAvail(int);
 int obtenerAvail();
 void liberarAvail(int);
+SimbolosRowPtr buscarAddrEnTDS(int);
+void imprimirCuadruplos();
+void imprimirTDS();
 
 //Implementacion de funciones
 
-//TODO Obtener AVAIL
+SimbolosRowPtr buscarAddrEnTDS(int a){
+    SimbolosRowPtr nodo;
+    nodo = TDS;
+    do{
+        if(nodo->count==a){
+            break;
+        }else{
+            nodo = nodo->next2;
+        }
+    }while(nodo!=nullptr);
+    return nodo;
+}
+
 int obtenerAvail(){
-    return 5550;
+    int tmp = PAvail.top();
+    PAvail.pop();
+    return tmp;
 }
 
-//TODO liberar avail
-void liberarAvail(int){
-
+void liberarAvail(int addr){
+    PAvail.push(addr);
 }
 
-//TODO generar cuadruplo
-void generarCuadruplo(cops cop,int op1,int op2,int res){
+//genera cuadruplo
+void generarCuadruplo(cops cop, int op1, int op2, int res)
+{
 
+//    CuadruploPtr nodo;
+//    nodo= (CuadruploPtr)malloc(sizeof(Cuadruplo));
+    CuadruploPtr nodo = new Cuadruplo();
+
+    nodo->key=CuadruplosCount;
+    nodo->cop = cop;
+    nodo->op1 = op1;
+    nodo->op2 = op2;
+    nodo->resl = res;
+    nodo->next2 = nullptr;
+
+    CuadruplosCount++;
+    if (cuadruplos==nullptr)
+    {
+        cuadruplos = nodo;
+    }
+    else
+    {
+        FinalCuadruplo->next2=nodo;
+    }
+
+    FinalCuadruplo= nodo;
+}
+
+//buscar cuadruplo
+CuadruploPtr BuscarCuadruplo(int count)
+{
+    CuadruploPtr nodo;
+    nodo=cuadruplos;
+    do
+    {
+        if(nodo->key== count)
+            break;
+        else
+            nodo= nodo->next2;
+    }
+    while(nodo!=nullptr);
+    return nodo;
+}
+
+//imprme la tabla de cuadruplos
+void imprimirCuadruplos(){
+    cout<<" c "<<" OP1 "<<" OP2 "<<" RES "<<endl;
+    if(cuadruplos!=nullptr){
+        CuadruploPtr node = cuadruplos;
+        do{
+            cout<<node->key<<" "<<node->cop<<" "<<node->op1<<" "<<node->op2<<" "<<node->resl<<endl;
+            node = node->next2;
+        }while(node!=nullptr);
+    }else{
+        cout<<" !!!! La tabla de cuadruplos esta vacia"<<endl;
+    }
+}
+
+//imprme la tabla de simbolos
+void imprimirTDS(){
+
+    cout<<"  TABLA DE SIMBOLOS "<<endl;
+    cout<<"---------------------"<<endl;
+    cout<<" addr "<<" type "<<" desc "<<"  "<<endl;
+
+    if(TDS!=nullptr){
+        SimbolosRowPtr node = TDS;
+        do{
+            cout<<" "<<node->count<<"  "<<node->type<<"  "<<node->desc<<" "<<endl;
+            node = node->next2;
+        }while(node!=nullptr);
+    }else{
+        cout<<" !!!! La tabla de simbolos esta vacia"<<endl;
+    }
 }
 
 //identifica si la direccion pertenece al avail
@@ -148,7 +241,7 @@ int buscarIdEnTDS(char *lexema){
       //recorrer la lista en busca del elemento
       do{
         if(node->desc==lexema){
-            return node->addr;
+            return node->count;
         }
         node = node->next2;
       }while(node!=nullptr);
@@ -166,18 +259,31 @@ int buscarODeclararEnTDS(int codeid,char *lexema){
 
     //si no se encontro
     if(baddr==-1){
+
         //declarar
-
-        SimbolosRowPtr newPtr; //nuevo nodo
-
+        //SimbolosRow *newPtr; //nuevo nodo
         //reservar espacio para nuevo nodo
-        newPtr = (SimbolosRowPtr) malloc(sizeof(SimbolosRow));
+        //newPtr = (SimbolosRowPtr) malloc(sizeof(SimbolosRow));
+
+        SimbolosRowPtr newPtr = new SimbolosRow();
 
         if(newPtr!=nullptr){
             //si hay espacio en memoria
 
-            newPtr->addr = SimbolosCount;
-            newPtr->desc = lexema;
+            newPtr->next2 = nullptr;
+            newPtr->count = SimbolosCount;
+
+            string cpy;
+
+            char *i;
+            i = &lexema[0];
+
+            while(*i!=0x00){
+                cpy.append(i);
+                i++;
+            }
+
+            newPtr->desc = cpy;
 
             switch(codeid){
                 case 1001:
@@ -210,7 +316,7 @@ int buscarODeclararEnTDS(int codeid,char *lexema){
             SimbolosCount++;
 
             //retornar la direccion declarada
-            return newPtr->addr;
+            return newPtr->count;
         }else{
             throw "no hay espacio disponible en memoria";
         }
@@ -253,9 +359,6 @@ void pushPO(int codeid, char *lexema){
     }
 
 }
-
-//TODO buscarCuadruplo()
-//TODO GenerarCuadruplo()
 
 void ACTION_2012(int codeid){
     switch (codeid) {
@@ -389,4 +492,51 @@ void ACTION_2015(){
     }else{
         throw "Error semantico, tipos no compatibles";
     }
+}
+
+//revisada
+void ACTION_2017(int code_id){
+
+    if(code_id == 1033){
+        DecAux = ENTERO;
+    }
+
+    if(code_id == 1034)
+    {
+        DecAux = FLOTANTE;
+    }
+
+    /*TODO if(code_id == bool (103?){
+     * DecAux = Bool;
+     * }*/
+
+    if(code_id == 1035)
+    {
+        DecAux = CARACTER;
+    }
+
+    if(code_id == 1036)
+    {
+        DecAux = CADENA;
+    }
+
+
+}
+
+
+void ACTION_2018(int code_id, char* lexema){
+    int a = buscarODeclararEnTDS(code_id,lexema);
+    POperandos.push(a);
+}
+
+void ACTION_2019(){
+
+    while(!POperandos.empty()){
+        int a = POperandos.top();
+        POperandos.pop();
+
+        SimbolosRowPtr n = buscarAddrEnTDS(a);
+        n->type = DecAux;
+    }
+
 }
