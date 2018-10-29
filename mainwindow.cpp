@@ -8,7 +8,7 @@
 
 #define LEXICO_DEBUG false
 #define SINTACTICO_DEBUG false
-#define ACCIONES_DEBUG false
+#define ACCIONES_DEBUG true
 
 //Variables globales para comunicar lexico con sitactico
 static int Ltoken;
@@ -334,7 +334,6 @@ void MainWindow::AnalizaPaso(){
     //analizar nuevo token
     MainWindow::dameToken(); // Se Guarda en varaible global Ltoken y Llexema
 
-    cout<<"Obtenido: "<<Ltoken<<" -> "<<Llexema<<endl;
 
     //Analizar estado de terminacion, si lo hay
     if(Ltoken==-1){
@@ -390,43 +389,53 @@ void MainWindow::AnalizaPaso(){
                     ExecucionStack.pop();
 
                     switch (accion) {
-                    case 2000:
-                        break;
                     case 2001:
+//                        ACTION_2001(Stoken,Llexema);
                         break;
                     case 2002:
+                        ACTION_2002();
                         break;
                     case 2003:
+                        ACTION_2003();
                         break;
                     case 2004:
+                        ACTION_2004();
                         break;
                     case 2005:
+                        ACTION_2005(Stoken);
                         break;
                     case 2006:
+                        ACTION_2006(Stoken);
                         break;
                     case 2007:
+                        ACTION_2007(Stoken,lexema);
                         break;
                     case 2008:
+                        ACTION_2008(Stoken);
                         break;
                     case 2009:
+                        ACTION_2009();
                         break;
                     case 2010:
+//                        ACTION_2010();
                         break;
                     case 2011:
+//                        ACTION_2011();
                         break;
                     case 2012:
-//                        ACTION_2012(Ltoken);
+                        ACTION_2012(Ltoken);
                         break;
                     case 2013:
-//                        ACTION_2013();
+                        ACTION_2013();
                         break;
                     case 2014:
-//                        ACTION_2014();
+                        ACTION_2014();
                         break;
                     case 2015:
-//                        ACTION_2015();
+                        ACTION_2015();
                         break;
                     case 2016:
+                        ACTION_2016();
                         break;
                     case 2017:
                         ACTION_2017(Stoken);
@@ -438,18 +447,14 @@ void MainWindow::AnalizaPaso(){
                         ACTION_2019();
                         break;
                     case 2020:
+                        ACTION_2020(Llexema);
                         break;
                     case 2021:
+                        ACTION_2021();
                         break;
                     case 2022:
+//                        ACTION_2022();
                         break;
-                    case 2023:
-                        break;
-                    case 2024:
-                        break;
-                    case 2025:
-                        break;
-
                     }
                 }else{
                     cout<<"ERROR DE SINTAXIS, no coinciden los tokens"<<endl;

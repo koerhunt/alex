@@ -26,7 +26,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    selectfilewindow.cpp
+    selectfilewindow.cpp \
+    tabla_simbolos.cpp
 
 HEADERS += \
         mainwindow.h \
