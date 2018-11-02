@@ -8,7 +8,9 @@
 
 #define LEXICO_DEBUG false
 #define SINTACTICO_DEBUG false
-#define ACCIONES_DEBUG true
+#define ACCIONES_DEBUG false
+
+typedef std::string tipo_cadena;
 
 //Variables globales para comunicar lexico con sitactico
 static int Ltoken;
@@ -19,6 +21,9 @@ static char* AntLlexema;
 
 //Ubicacion del archivo de codigo
 char* ARCHIVO = "/home/shikami/codigo.lex";
+
+void imprimirStackTipos(std::stack<tipos> stk);
+static std::stack<tipos> TmpStackTipo;
 
 //Metodo para cargar el archivo al editor
 void MainWindow::CargarArchivoAlEditor(){
@@ -227,7 +232,7 @@ void MainWindow::dameToken(){
             ui->tableWidget->insertRow(ui->tableWidget->rowCount());
             ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,0,new QTableWidgetItem(QString::number(Ltoken)));
             ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,1,new QTableWidgetItem(Llexema));
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,2,new QTableWidgetItem(Token(edo)));
+            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,2,new QTableWidgetItem( Token(edo).data() ));
             ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,3,new QTableWidgetItem(QString::number(relacionaAlex(Ltoken))));
 
         }else{
@@ -390,7 +395,7 @@ void MainWindow::AnalizaPaso(){
 
                     switch (accion) {
                     case 2001:
-//                        ACTION_2001(Stoken,Llexema);
+                        ACTION_2001(Stoken,Llexema);
                         break;
                     case 2002:
                         ACTION_2002();
@@ -453,7 +458,7 @@ void MainWindow::AnalizaPaso(){
                         ACTION_2021();
                         break;
                     case 2022:
-//                        ACTION_2022();
+                        ACTION_2022();
                         break;
                     }
                 }else{
@@ -465,7 +470,7 @@ void MainWindow::AnalizaPaso(){
             }
 
             if(SINTACTICO_DEBUG){
-                imprimirStack(ExecucionStack);
+//                imprimirStack(ExecucionStack);
             }
 
         }else{
@@ -482,7 +487,7 @@ void MainWindow::AnalizaPaso(){
             if(elem!=-1){
 
                 if(SINTACTICO_DEBUG){
-                    imprimirStack(ExecucionStack);
+//                    imprimirStack(ExecucionStack);
                 }
 
                 //elimina la produccion
@@ -549,3 +554,25 @@ void MainWindow::on_pushButton_2_clicked()
     imprimirTDS();
 
 }
+
+
+//funcion auxiliar para imprimir una pila sin modificarla
+void imprimirStackTipos(std::stack<tipos> stk){
+    if(stk.empty()){
+        cout<<"PILA TIPOS VACIA"<<endl;
+    }
+    while(stk.size()>0){
+        TmpStackTipo.push(stk.top());
+        stk.pop();
+    }
+
+    while(TmpStackTipo.size()>0){
+        tipos el = TmpStackTipo.top();
+        cout<<"--"<<el;
+        stk.push(el);
+        TmpStackTipo.pop();
+    }
+    cout<<endl;
+
+}
+

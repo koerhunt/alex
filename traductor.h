@@ -10,6 +10,8 @@
 
 using namespace std;
 
+typedef string cadena_tipo;
+
 //Valores para los tipos de datos
 enum tipos{
     ENTERO=2501,
@@ -54,7 +56,7 @@ struct cuadruplo {
 struct simbolosRow{
     tipos type;
     int count;
-    string desc;
+    cadena_tipo desc;
     int *apram;
     int *apnext;
     struct simbolosRow *next2;
@@ -106,6 +108,7 @@ static SimbolosRowPtr FinalElemTS;
 static SimbolosRowPtr TDS;
 
 //declaracion de funciones
+cadena_tipo obtenerTipo(tipos t);
 
 void generarCuadruplo(cops,int,int,int);
 CuadruploPtr buscarCuadruplo(int );
@@ -237,25 +240,15 @@ bool esAvail(int n){
 
 //devuelve la direccion del id
 //o devuelve -1 si no lo encontro
-int buscarIdEnTDS(char *lexema){
+int buscarIdEnTDS(cadena_tipo lexema){
 
     SimbolosRowPtr node;
     node = TDS;
 
-    string cpy;
-
-    char *i;
-    i = &lexema[0];
-
-    while(*i!=0x00){
-        cpy.append(i);
-        i++;
-    }
-
     if(node!=nullptr){
       //recorrer la lista en busca del elemento
       do{
-        if(node->desc==cpy){
+        if(node->desc==lexema){
             return node->count;
         }
         node = node->next2;
@@ -267,7 +260,7 @@ int buscarIdEnTDS(char *lexema){
 
 //devuelve la direccion de la constante existente
 //o de una nueva declarada
-int buscarODeclararEnTDS(int codeid,char *lexema){
+int buscarODeclararEnTDS(int codeid,cadena_tipo lexema){
 
     //busca si se encuentra alguna entrada
     int baddr = buscarIdEnTDS(lexema);
@@ -288,17 +281,7 @@ int buscarODeclararEnTDS(int codeid,char *lexema){
             newPtr->next2 = nullptr;
             newPtr->count = SimbolosCount;
 
-            string cpy;
-
-            char *i;
-            i = &lexema[0];
-
-            while(*i!=0x00){
-                cpy.append(i);
-                i++;
-            }
-
-            newPtr->desc = cpy;
+            newPtr->desc = lexema;
 
             switch(codeid){
                 case 1001:
@@ -344,7 +327,7 @@ int buscarODeclararEnTDS(int codeid,char *lexema){
 //Push pila de operandos
 //obtiene la direccion del id o constante y le hace
 //push a la pila de operandos
-void pushPO(int codeid, char *lexema){
+void pushPO(int codeid, cadena_tipo lexema){
 
     if(codeid==1000){
 
@@ -519,7 +502,6 @@ void ACTION_2015(){
 //    }
 }
 
-
 void ACTION_2016(){
 
 //    tipos t1,t2;
@@ -607,13 +589,12 @@ void ACTION_2006 (int type) {
     }
 }
 
-void ACTION_2007 (int type, char* lex){
+void ACTION_2007 (int type, cadena_tipo lex){
 
     //declara o busca la constante con su tipo
     //en este metodo se comprueba y se dan de alta con su tipo
     int addr = buscarODeclararEnTDS(type,lex);
     tipos tip = buscarAddrEnTDS(addr)->type;
-
 
     POperandos.push(addr);
     PTipos.push(tip);
@@ -624,8 +605,6 @@ void ACTION_2007 (int type, char* lex){
 void ACTION_2008 (int codeid) {
     if(codeid == 1009) {
         POperadores.push(FONDO_FALSO);
-    } else {
-        throw 'Error semantico.';
     }
 }
 
@@ -635,86 +614,102 @@ void ACTION_2009 () {
 }
 
 void ACTION_2010 () {
-    if(POperadores.top() == MULT || POperadores.top() == DIV || POperadores.top() == MODULUS) {
+//    if(POperadores.top() == MULT || POperadores.top() == DIV || POperadores.top() == MODULUS) {
 
-        tipos t1 = PTipos.top();PTipos.pop();
-        tipos t2 = PTipos.top();PTipos.pop();
+//        tipos t1 = PTipos.top();PTipos.pop();
+//        tipos t2 = PTipos.top();PTipos.pop();
 
-        if(t1==t2) {
+//        if(t1==t2) {
 
-            int operando2 = POperandos.top();
-            POperandos.pop();
+//            int operando2 = POperandos.top();
+//            POperandos.pop();
 
-            int operando1 = POperandos.top();
-            POperandos.pop();
+//            int operando1 = POperandos.top();
+//            POperandos.pop();
 
-            int resultado = obtenerAvail();
+//            int resultado = obtenerAvail();
 
-            generarCuadruplo(POperadores.top(),operando1,operando2,resultado);
+//            generarCuadruplo(POperadores.top(),operando1,operando2,resultado);
 
 
-            if(esAvail(operando2)) {
-               liberarAvail(operando2);
-            }
-            if(esAvail(operando1)) {
-               liberarAvail(operando1);
-            }
+//            if(esAvail(operando2)) {
+//               liberarAvail(operando2);
+//            }
+//            if(esAvail(operando1)) {
+//               liberarAvail(operando1);
+//            }
 
-            PTipos.push(t1);
-            POperandos.push(resultado);
-            POperadores.pop();
+//            PTipos.push(t1);
+//            POperandos.push(resultado);
+//            POperadores.pop();
 
-        } else {
-            throw "Error semántico";
-        }
-    }
+//        } else {
+//            throw "Error semántico";
+//        }
+//    }
 }
 
 void ACTION_2011 () {
-    if(POperadores.top() == PLUS || POperadores.top() == MINUS) {
+//    if(POperadores.top() == PLUS || POperadores.top() == MINUS) {
 
-        tipos t1 = PTipos.top();PTipos.pop();
-        tipos t2 = PTipos.top();PTipos.pop();
+//        tipos t1 = PTipos.top();PTipos.pop();
+//        tipos t2 = PTipos.top();PTipos.pop();
 
-        if(t1==t2) {
+//        if(t1==t2) {
 
-            int operando2 = POperandos.top();
-            POperandos.pop();
+//            int operando2 = POperandos.top();
+//            POperandos.pop();
 
-            int operando1 = POperandos.top();
-            POperandos.pop();
+//            int operando1 = POperandos.top();
+//            POperandos.pop();
 
-            int resultado = obtenerAvail();
+//            int resultado = obtenerAvail();
 
-            generarCuadruplo(POperadores.top(),operando1,operando2,resultado);
+//            generarCuadruplo(POperadores.top(),operando1,operando2,resultado);
 
 
-            if(esAvail(operando2)) {
-               liberarAvail(operando2);
-            }
-            if(esAvail(operando1)) {
-               liberarAvail(operando1);
-            }
+//            if(esAvail(operando2)) {
+//               liberarAvail(operando2);
+//            }
+//            if(esAvail(operando1)) {
+//               liberarAvail(operando1);
+//            }
 
-            PTipos.push(t1);
-            POperandos.push(resultado);
-            POperadores.pop();
+//            PTipos.push(t1);
+//            POperandos.push(resultado);
+//            POperadores.pop();
 
-        } else {
-            throw "Error semántico";
-        }
+//        } else {
+//            throw "Error semántico";
+//        }
+//    }
+}
+
+
+
+//=====> ASIGNACON (funciona)
+
+void ACTION_2001(int code_id, cadena_tipo lexema){
+
+    //TODO
+
+    int addr = buscarIdEnTDS(lexema);
+    if(addr!=-1){
+        SimbolosRowPtr ptr = buscarAddrEnTDS(addr);
+
+        POperandos.push(addr);
+        PTipos.push(ptr->type);
+
+    }else{
+        cout<<"ERROR NO SE DECLARO EL IDENTIFICADOR: "<<lexema<<endl;
     }
 }
 
-//=====> ASIGNACION
-
-void ACTION_2001(int code_id, char *lexema){
-    pushPO(code_id,lexema);
-}
-
 void ACTION_2022(){
+
     tipos t1 = PTipos.top();
     PTipos.pop();
+
     tipos t2 = PTipos.top();
     PTipos.pop();
 
@@ -730,13 +725,15 @@ void ACTION_2022(){
         if(esAvail(res))
             liberarAvail(res);
     }else{
+        cout<<"ERROR DE ASIGNACION, no puede asignarse ";
+        cout<<"una variable de tipo "<<obtenerTipo(t1)<<" a una de tipo "<<obtenerTipo(t2)<<endl;
         throw "ERROR SEMANTICO";
     }
 }
 
 //=====> DECLARACION DE VARIABLES
 
-//pendiente booleano, pero lista e.e
+//TODO agregar dato booleano
 void ACTION_2017(int code_id){
 
     if(code_id == 1033){
@@ -765,13 +762,11 @@ void ACTION_2017(int code_id){
 
 }
 
-//lista
-void ACTION_2018(int code_id, char* lexema){
+void ACTION_2018(int code_id, cadena_tipo lexema){
     int a = buscarODeclararEnTDS(code_id,lexema);
     POperandos.push(a);
 }
 
-//lista
 void ACTION_2019(){
 
     while(!POperandos.empty()){
@@ -784,13 +779,17 @@ void ACTION_2019(){
 
 }
 
-//FIN DECLARACION DE CONSTANTES
-
-
 //READ
-void ACTION_2020(char *lexema){
+void ACTION_2020(cadena_tipo lexema){
+
     int addr = buscarIdEnTDS(lexema);
-    generarCuadruplo(INPUT,0,0,addr);
+
+    if(addr!=-1){
+        generarCuadruplo(INPUT,0,0,addr);
+    }else{
+        cout<<"NO SE DECLARO "<<lexema<<endl;
+        throw "ERROR";
+    }
 }
 
 //WRITE
@@ -799,4 +798,23 @@ void ACTION_2021(){
     int op = POperandos.top();
     POperandos.pop();
     generarCuadruplo(OUTPUT,0,0,op);
+
 }
+
+
+
+// DESTRADUCCION (metodos de ayuda para entender los numeros que aparecen)
+cadena_tipo obtenerTipo(tipos t){
+    switch(t){
+    case ENTERO:
+        return "entero";
+    case FLOTANTE:
+        return "flotante";
+    case CARACTER:
+        return "caracter";
+    case CADENA:
+        return "cadena";
+    }
+}
+
+

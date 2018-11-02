@@ -32,6 +32,9 @@ static int c1;             //numero de simbolos analizados por elemento encontra
 static char lexema[256];   //arreglo char (cadena) que contendra el nombre del lexema
 static char *caux;         //apuntador para almacenar el caracter actual sobre el arreglo lexema
 
+//utilizar cadena
+typedef std::string tipo_cadena;
+
 
 //Tabla de transicion
 static int TTABLE[19][33] = {
@@ -58,179 +61,183 @@ static int TTABLE[19][33] = {
 };
 
 //Tabla de errores
-char* Error(int edo){
+tipo_cadena Error(int edo){
+    tipo_cadena cad = "CODIGO DE ERROR NO ENCONTRADO";
     switch(edo){
         case 500:{
-            char *cad = "Simbolo no reconocido por el lenguaje";
-            return cad;
+        cad = "Simbolo no reconocido por el lenguaje";
+            break;
         }
         case 501:{
-            char *cad = "Numero real malformado se esperaba un digito despues de '.' ";
-            return cad;
+        cad = "Numero real malformado se esperaba un digito despues de '.' ";
+            break;
         }
         case 502:{
-            char *cad = "Notacion cientifica malformada se esperaba un digito despues del exponente (e/E)";
-            return cad;
+        cad = "Notacion cientifica malformada se esperaba un digito despues del exponente (e/E)";
+            break;
         }
         case 503:{
-            char *cad = "Notacion cientifica malformada se esperaba un digito para el exponente";
-            return cad;
+        cad = "Notacion cientifica malformada se esperaba un digito para el exponente";
+            break;
         }
         case 504:{
-            char *cad = "AND malformado se esperaba &";
-            return cad;
+        cad = "AND malformado se esperaba &";
+            break;
         }
         case 505:{
-            char *cad = "OR malformado se esperaba |";
-            return cad;
+        cad = "OR malformado se esperaba |";
+            break;
         }
         case 506:{
-            char *cad = "Se esperaba un carater, '' es invalido";
-            return cad;
+        cad = "Se esperaba un carater, '' es invalido";
+            break;
         }
         case 507:{
-            char *cad = "se esperaba ' pero no se encontro";
-            return cad;
+        cad = "se esperaba ' pero no se encontro";
+            break;
         }
     }
+    return cad;
 }
 
 //Tabla de aciertos
-char* Token(int edo){
+tipo_cadena Token(int edo){
+    tipo_cadena cad = "NO ENCONTRADO";
     switch(edo){
         case 100:{
-            char *cad = "Palabra reservada";
-            return cad;
+        cad = "Palabra reservada";
+            break;
         }
         case 101:{
-            char *cad =  "Identificador";
-            return cad;
+        cad =  "Identificador";
+             break;
         }
         case 102:{
-            char *cad =  "Constante numerica entera";
-            return cad;
+        cad =  "Constante numerica entera";
+             break;
         }
         case 103:{
-            char *cad =  "Constante numerica real";
-            return cad;
+        cad =  "Constante numerica real";
+             break;
         }
         case 104:{
-            char *cad =  "Constante numerica notación cientifica";
-            return cad;
+        cad =  "Constante numerica notación cientifica";
+             break;
         }
         case 105:{
-            char *cad =  "Operador aritmetico suma";
-            return cad;
+        cad =  "Operador aritmetico suma";
+             break;
         }
         case 106:{
-            char *cad =  "Operador aritmetico resta";
-            return cad;
+        cad =  "Operador aritmetico resta";
+             break;
         }
         case 107:{
-            char *cad =  "Operador aritmetico multiplicación";
-            return cad;
+        cad =  "Operador aritmetico multiplicación";
+             break;
         }
         case 108:{
-            char *cad =  "Operador aritmetico divisíon";
-            return cad;
+        cad =  "Operador aritmetico divisíon";
+             break;
         }
         case 109:{
-            char *cad =  "Operador aritmetico modulo";
-            return cad;
+        cad =  "Operador aritmetico modulo";
+             break;
         }
         case 110:{
-            char *cad =  "Parentesis de apertura";
-            return cad;
+        cad =  "Parentesis de apertura";
+             break;
         }
         case 111:{
-            char *cad =  "Parentesis de cierre";
-            return cad;
+        cad =  "Parentesis de cierre";
+            break;
         }
         case 112:{
-            char *cad =  "Corchete de apertura";
-            return cad;
+        cad =  "Corchete de apertura";
+             break;
         }
         case 113:{
-            char *cad =  "Corchete de cierre";
-            return cad;
+        cad =  "Corchete de cierre";
+             break;
         }
         case 114:{
-            char *cad =  "Llave de apertura";
-            return cad;
+        cad =  "Llave de apertura";
+             break;
         }
         case 115:{
-            char *cad =  "Llave de cierre";
-            return cad;
+        cad =  "Llave de cierre";
+            break;
         }
         case 116:{
-            char *cad =  "Operador lógico AND";
-            return cad;
+        cad =  "Operador lógico AND";
+             break;
         }
         case 117:{
-            char *cad =  "Operador lógico OR";
-            return cad;
+        cad =  "Operador lógico OR";
+             break;
         }
         case 118:{
-            char *cad =  "Operador asociativo diferente";
-            return cad;
+        cad =  "Operador asociativo diferente";
+             break;
         }
         case 119:{
-            char *cad =  "Operador lógico NOT";
-            return cad;
+        cad =  "Operador lógico NOT";
+             break;
         }
         case 120:{
-            char *cad =  "Asignación";
-            return cad;
+        cad =  "Asignación";
+             break;
         }
         case 121:{
-            char *cad =  "Comparación (igualdad)";
-            return cad;
+        cad =  "Comparación (igualdad)";
+             break;
         }
         case 122:{
-            char *cad =  "Mayor que";
-            return cad;
+        cad =  "Mayor que";
+             break;
         }
         case 123:{
-            char *cad =  "Mayor o igual que";
-            return cad;
+        cad =  "Mayor o igual que";
+             break;
         }
         case 124:{
-            char *cad = "Menor que";
-            return cad;
+        cad = "Menor que";
+             break;
         }
         case 125:{
-            char *cad = "Menor o igual que";
-            return cad;
+        cad = "Menor o igual que";
+            break;
         }
         case 126:{
-            char *cad = "Signo puntuación coma";
-            return cad;
+        cad = "Signo puntuación coma";
+            break;
         }
         case 127:{
-            char *cad = "Signo de puntuación punto y coma";
-            return cad;
+        cad = "Signo de puntuación punto y coma";
+             break;
         }
         case 128:{
-            char *cad = "Signo de puntuación dos puntos";
-            return cad;
+        cad = "Signo de puntuación dos puntos";
+            break;
         }
         case 129:{
-            char *cad = "Signo de puntuación punto";
-            return cad;
+        cad = "Signo de puntuación punto";
+             break;
         }
         case 130:{
-            char *cad = "Comentario";
-            return cad;
+        cad = "Comentario";
+            break;
         }
         case 131:{
-            char *cad = "Caracter";
-            return cad;
+        cad = "Caracter";
+             break;
         }
         case 132:{
-            char *cad = "String";
-            return cad;
+        cad = "String";
+             break;
         }
     }
+    return cad;
 }
 
 //Funcion de relacion de caracter
