@@ -368,23 +368,6 @@ void pushPO(int codeid, cadena_tipo lexema){
 
 }
 
-
-
-void ACTION_2014(){
-    //TODO si top de la pila es booleano
-
-//    int resultado = POperandos.top();
-//    POperandos.pop();
-
-    //se espera que este un operador not en el tope
-//    cops operador = POperadores.top();
-//    POperadores.pop();
-
-    //generar cuadruplo del not
-//    generarCuadruplo(operador,0,0,resultado);
-
-}
-
 void ACTION_2015(){
 
 //    tipos t1,t2;
@@ -485,8 +468,10 @@ void ACTION_2003 () {
     POperadores.push(AND);
 }
 
+//mete operador !
 void ACTION_2004 () {
     POperadores.push(DIF);
+    cout<<"push !"<<endl;
 }
 
 //push + o -
@@ -728,6 +713,26 @@ void ACTION_2013(){
     }
 }
 
+
+//genera cuadruplo del not (unario)
+void ACTION_2014(){
+
+    //TODO si top de la pila es booleano
+
+    int resultado = POperandos.top();
+    POperandos.pop();
+
+    cops operador = POperadores.top();
+    POperadores.pop();
+
+    //generar cuadruplo del not
+    generarCuadruplo(operador,0,0,resultado);
+
+    //linea extra no viene
+    //en los diagramas pero debe de ir (?)
+    POperandos.push(resultado);
+
+}
 //EXPR
 //ID O CTE
 void ACTION_2001(int code_id, cadena_tipo lexema){

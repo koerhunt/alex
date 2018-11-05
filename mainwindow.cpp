@@ -6,8 +6,8 @@
 #include "QMessageBox"
 #include "traductor.h"
 
-#define LEXICO_DEBUG false
-#define SINTACTICO_DEBUG false
+#define LEXICO_DEBUG true
+#define SINTACTICO_DEBUG true
 #define ACCIONES_DEBUG false
 
 typedef std::string tipo_cadena;
@@ -278,9 +278,9 @@ int MainWindow::relacionaAlex(int tkn){
         case 117:
             return 1016;
         case 118:
-            return 1017;
-        case 119:
             return 1018;
+        case 119:
+            return 1017;
         case 120:
             return 1019;
         case 121:
@@ -400,7 +400,8 @@ void MainWindow::AnalizaPaso(){
 //                        ACTION_2003();
                         break;
                     case 2004:
-//                        ACTION_2004();
+                        //lista
+                        ACTION_2004();
                         break;
                     case 2005:
                         //lista
@@ -439,7 +440,8 @@ void MainWindow::AnalizaPaso(){
                         ACTION_2013();
                         break;
                     case 2014:
-//                        ACTION_2014();
+                        //pendiente
+                        ACTION_2014();
                         break;
                     case 2015:
 //                        ACTION_2015();
