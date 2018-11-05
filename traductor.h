@@ -547,12 +547,15 @@ void ACTION_2007 (int type, cadena_tipo lex){
 void ACTION_2008 (int codeid) {
     if(codeid == 1009) {
         POperadores.push(FONDO_FALSO);
+    }else{
+        cout<<"no es un )"<<endl;
     }
 }
 
 //saca marca de fondo falso
 void ACTION_2009 () {
     POperadores.pop();
+    cout<<"quitada marca de fondo falso"<<endl;
 }
 
 //cuadruplo de multiplicacion, division y modulo

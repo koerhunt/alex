@@ -415,10 +415,12 @@ void MainWindow::AnalizaPaso(){
                         ACTION_2007(Stoken,lexema);
                         break;
                     case 2008:
-//                        ACTION_2008(Stoken);
+                        //lista
+                        ACTION_2008(Stoken);
                         break;
                     case 2009:
-//                        ACTION_2009();
+                        //lista
+                        ACTION_2009();
                         break;
                     case 2010:
                         //lista
@@ -433,6 +435,7 @@ void MainWindow::AnalizaPaso(){
                         ACTION_2012(Stoken);
                         break;
                     case 2013:
+                        //lista
                         ACTION_2013();
                         break;
                     case 2014:
