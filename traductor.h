@@ -566,9 +566,15 @@ void ACTION_2005 (int type) {
     if(type == 1004) {
          //1004 +
         POperadores.push(PLUS);
+        cout<<"push + "<<endl;
     } else {
+        if(type==1005){
         //1005 -
         POperadores.push(MINUS);
+        cout<<"push - "<<endl;
+        }else{
+            cout<<"operador no valido + -"<<endl;
+        }
     }
 }
 
@@ -576,14 +582,19 @@ void ACTION_2006 (int type) {
     //*
     if(type == 1006) {
         POperadores.push(MULT);
+        cout<<"push * "<<endl;
     } else {
         // /
         if(type == 1007) {
             POperadores.push(DIV);
+            cout<<"push / "<<endl;
         } else {
             // %
             if(type == 1008){
                 POperadores.push(MODULUS);
+                cout<<"push % "<<endl;
+            }else{
+                cout<<"operador no valido * / %"<<endl;
             }
         }
     }
@@ -613,82 +624,97 @@ void ACTION_2009 () {
     POperadores.pop();
 }
 
+//evaluacion de multiplicacion, division y modulo
 void ACTION_2010 () {
-//    if(POperadores.top() == MULT || POperadores.top() == DIV || POperadores.top() == MODULUS) {
 
-//        tipos t1 = PTipos.top();PTipos.pop();
-//        tipos t2 = PTipos.top();PTipos.pop();
+    if(POperadores.empty())
+        return;
 
-//        if(t1==t2) {
+    if(POperadores.top() == MULT || POperadores.top() == DIV || POperadores.top() == MODULUS) {
 
-//            int operando2 = POperandos.top();
-//            POperandos.pop();
+        tipos t1 = PTipos.top();
+        PTipos.pop();
+        tipos t2 = PTipos.top();
+        PTipos.pop();
 
-//            int operando1 = POperandos.top();
-//            POperandos.pop();
+        if(t1==t2) {
 
-//            int resultado = obtenerAvail();
+            int operando2 = POperandos.top();
+            POperandos.pop();
 
-//            generarCuadruplo(POperadores.top(),operando1,operando2,resultado);
+            int operando1 = POperandos.top();
+            POperandos.pop();
+
+            int resultado = obtenerAvail();
+
+            generarCuadruplo(POperadores.top(),operando1,operando2,resultado);
 
 
-//            if(esAvail(operando2)) {
-//               liberarAvail(operando2);
-//            }
-//            if(esAvail(operando1)) {
-//               liberarAvail(operando1);
-//            }
+            if(esAvail(operando2)) {
+               liberarAvail(operando2);
+            }
+            if(esAvail(operando1)) {
+               liberarAvail(operando1);
+            }
 
-//            PTipos.push(t1);
-//            POperandos.push(resultado);
-//            POperadores.pop();
+            PTipos.push(t1);
+            POperandos.push(resultado);
+            POperadores.pop();
 
-//        } else {
-//            throw "Error semántico";
-//        }
-//    }
+        } else {
+            throw "Error semántico";
+        }
+    }
 }
 
+
+//evaluacion de suma y resta
 void ACTION_2011 () {
-//    if(POperadores.top() == PLUS || POperadores.top() == MINUS) {
 
-//        tipos t1 = PTipos.top();PTipos.pop();
-//        tipos t2 = PTipos.top();PTipos.pop();
+    if(POperadores.empty())
+        return;
 
-//        if(t1==t2) {
+    if(POperadores.top() == PLUS || POperadores.top() == MINUS) {
 
-//            int operando2 = POperandos.top();
-//            POperandos.pop();
+        tipos t1 = PTipos.top();
+        PTipos.pop();
+        tipos t2 = PTipos.top();
+        PTipos.pop();
 
-//            int operando1 = POperandos.top();
-//            POperandos.pop();
+        if(t1==t2) {
 
-//            int resultado = obtenerAvail();
+            int operando2 = POperandos.top();
+            POperandos.pop();
 
-//            generarCuadruplo(POperadores.top(),operando1,operando2,resultado);
+            int operando1 = POperandos.top();
+            POperandos.pop();
+
+            int resultado = obtenerAvail();
+
+            generarCuadruplo(POperadores.top(),operando1,operando2,resultado);
 
 
-//            if(esAvail(operando2)) {
-//               liberarAvail(operando2);
-//            }
-//            if(esAvail(operando1)) {
-//               liberarAvail(operando1);
-//            }
+            if(esAvail(operando2)) {
+               liberarAvail(operando2);
+            }
+            if(esAvail(operando1)) {
+               liberarAvail(operando1);
+            }
 
-//            PTipos.push(t1);
-//            POperandos.push(resultado);
-//            POperadores.pop();
+            PTipos.push(t1);
+            POperandos.push(resultado);
+            POperadores.pop();
 
-//        } else {
-//            throw "Error semántico";
-//        }
-//    }
+        } else {
+            throw "Error semántico";
+        }
+    }
 }
 
 
 
-//=====> ASIGNACON (funciona)
-
+//EXPR
+//ID O CTE
 void ACTION_2001(int code_id, cadena_tipo lexema){
 
     //TODO
@@ -705,6 +731,8 @@ void ACTION_2001(int code_id, cadena_tipo lexema){
     }
 }
 
+
+//=====> ASIGNACON (funciona)
 void ACTION_2022(){
 
     tipos t1 = PTipos.top();
@@ -731,8 +759,7 @@ void ACTION_2022(){
     }
 }
 
-//=====> DECLARACION DE VARIABLES
-
+//Declaracion
 //TODO agregar dato booleano
 void ACTION_2017(int code_id){
 

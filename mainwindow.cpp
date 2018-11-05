@@ -66,22 +66,17 @@ void MainWindow::Init(){
     ExecucionStack.push(1);   //produccion program
 
     //llenar el avail
-    PAvail.push(5550);
-    PAvail.push(5551);
-    PAvail.push(5552);
-    PAvail.push(5553);
-    PAvail.push(5554);
-    PAvail.push(5555);
-    PAvail.push(5556);
-    PAvail.push(5557);
-    PAvail.push(5558);
-    PAvail.push(5559);
     PAvail.push(5560);
-    PAvail.push(5561);
-    PAvail.push(5562);
-    PAvail.push(5563);
-    PAvail.push(5564);
-    PAvail.push(5565);
+    PAvail.push(5559);
+    PAvail.push(5558);
+    PAvail.push(5557);
+    PAvail.push(5556);
+    PAvail.push(5555);
+    PAvail.push(5554);
+    PAvail.push(5553);
+    PAvail.push(5552);
+    PAvail.push(5551);
+    PAvail.push(5550);
 
     //mostrar informacion y salir
     if(archivo.fail()){
@@ -395,69 +390,81 @@ void MainWindow::AnalizaPaso(){
 
                     switch (accion) {
                     case 2001:
+                        //lista
                         ACTION_2001(Stoken,Llexema);
                         break;
                     case 2002:
-                        ACTION_2002();
+//                        ACTION_2002();
                         break;
                     case 2003:
-                        ACTION_2003();
+//                        ACTION_2003();
                         break;
                     case 2004:
-                        ACTION_2004();
+//                        ACTION_2004();
                         break;
                     case 2005:
+                        //lista
                         ACTION_2005(Stoken);
                         break;
                     case 2006:
+                        //lista
                         ACTION_2006(Stoken);
                         break;
                     case 2007:
+                        //lista
                         ACTION_2007(Stoken,lexema);
                         break;
                     case 2008:
-                        ACTION_2008(Stoken);
+//                        ACTION_2008(Stoken);
                         break;
                     case 2009:
-                        ACTION_2009();
+//                        ACTION_2009();
                         break;
                     case 2010:
-//                        ACTION_2010();
+                        //lista
+                        ACTION_2010();
                         break;
                     case 2011:
-//                        ACTION_2011();
+                        //lista
+                        ACTION_2011();
                         break;
                     case 2012:
-                        ACTION_2012(Ltoken);
+//                        ACTION_2012(Ltoken);
                         break;
                     case 2013:
-                        ACTION_2013();
+//                        ACTION_2013();
                         break;
                     case 2014:
-                        ACTION_2014();
+//                        ACTION_2014();
                         break;
                     case 2015:
-                        ACTION_2015();
+//                        ACTION_2015();
                         break;
                     case 2016:
-                        ACTION_2016();
+//                        ACTION_2016();
                         break;
                     case 2017:
+                        //lista
                         ACTION_2017(Stoken);
                         break;
                     case 2018:
+                        //lista
                         ACTION_2018(Stoken,Llexema);
                         break;
                     case 2019:
+                        //lista
                         ACTION_2019();
                         break;
                     case 2020:
+                        //lista
                         ACTION_2020(Llexema);
                         break;
                     case 2021:
+                        //lista
                         ACTION_2021();
                         break;
                     case 2022:
+                        //lista
                         ACTION_2022();
                         break;
                     }
