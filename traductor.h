@@ -368,79 +368,7 @@ void pushPO(int codeid, cadena_tipo lexema){
 
 }
 
-void ACTION_2012(int codeid){
-    switch (codeid) {
-        //==
-        case 1020:
-            POperadores.push(EQUALS);
-        break;
-        //!=
-        case 1018:
-            POperadores.push(NOTEQUALS);
-        break;
-        //<
-        case 1023:
-            POperadores.push(LESSTHAN);
-        break;
-        //<=
-        case 1024:
-            POperadores.push(LESSOREQUALSTHAN);
-        break;
-        //>
-        case 1021:
-            POperadores.push(GREATERTHAN);
-        break;
-        //>=
-        case 1022:
-            POperadores.push(GREATEROREQUALSTHAN);
-        break;
-    }
-}
 
-void ACTION_2013(){
-
-    tipos t1,t2;
-
-    t1 = PTipos.top();
-    PTipos.pop();
-
-    t2 = PTipos.top();
-    PTipos.pop();
-
-    //si top y top-1 son compatibles entonces
-    if(t1==t2){
-
-        //obtener operando 2
-        int operando2 = POperandos.top();
-        POperandos.pop();
-
-        //obtener operando 1
-        int operando1 = POperandos.top();
-        POperandos.pop();
-
-        //obtiene una direccion correspondiente al avail
-        int resultado = obtenerAvail();
-
-        //se obtiene el operador
-        cops operador = POperadores.top();
-
-        //genera cuadruplo
-        generarCuadruplo(operador,operando1,operando2,resultado);
-
-        if(esAvail(operando1))
-            liberarAvail(operando1);
-
-        if(esAvail(operando2))
-            liberarAvail(operando2);
-
-        POperandos.push(resultado);
-        PTipos.push(t1);
-
-        POperadores.pop();
-    }else{
-        throw "Error semantico, tipos no compatibles";
-    }
-}
 
 void ACTION_2014(){
     //TODO si top de la pila es booleano
@@ -561,6 +489,7 @@ void ACTION_2004 () {
     POperadores.push(DIF);
 }
 
+//push + o -
 void ACTION_2005 (int type) {
 
     if(type == 1004) {
@@ -578,6 +507,7 @@ void ACTION_2005 (int type) {
     }
 }
 
+//push operando * / o %
 void ACTION_2006 (int type) {
     //*
     if(type == 1006) {
@@ -600,6 +530,7 @@ void ACTION_2006 (int type) {
     }
 }
 
+//busca o declara cte
 void ACTION_2007 (int type, cadena_tipo lex){
 
     //declara o busca la constante con su tipo
@@ -624,7 +555,7 @@ void ACTION_2009 () {
     POperadores.pop();
 }
 
-//evaluacion de multiplicacion, division y modulo
+//cuadruplo de multiplicacion, division y modulo
 void ACTION_2010 () {
 
     if(POperadores.empty())
@@ -667,8 +598,7 @@ void ACTION_2010 () {
     }
 }
 
-
-//evaluacion de suma y resta
+//cuadruplo de suma y resta
 void ACTION_2011 () {
 
     if(POperadores.empty())
@@ -711,7 +641,89 @@ void ACTION_2011 () {
     }
 }
 
+//push == != < <= > >=
+void ACTION_2012(int codeid){
+    switch (codeid) {
+        //==
+        case 1020:
+            POperadores.push(EQUALS);
+            cout<<"push "<<"=="<<endl;
+        break;
+        //!=
+        case 1018:
+            POperadores.push(NOTEQUALS);
+            cout<<"push "<<"!="<<endl;
+        break;
+        //<
+        case 1023:
+            POperadores.push(LESSTHAN);
+            cout<<"push "<<"<"<<endl;
+        break;
+        //<=
+        case 1024:
+            POperadores.push(LESSOREQUALSTHAN);
+            cout<<"push "<<"<="<<endl;
+        break;
+        //>
+        case 1021:
+            POperadores.push(GREATERTHAN);
+            cout<<"push "<<">"<<endl;
+        break;
+        //>=
+        case 1022:
+            POperadores.push(GREATEROREQUALSTHAN);
+            cout<<"push "<<">="<<endl;
+        break;
+    default:
+        cout<<"OPREL no valido: "<<codeid<<endl;
+    }
+}
 
+//genera cuadruplos para OPREL
+void ACTION_2013(){
+
+    tipos t1,t2;
+
+    t1 = PTipos.top();
+    PTipos.pop();
+
+    t2 = PTipos.top();
+    PTipos.pop();
+
+    //si top y top-1 son compatibles entonces
+    if(t1==t2){
+
+        //obtener operando 2
+        int operando2 = POperandos.top();
+        POperandos.pop();
+
+        //obtener operando 1
+        int operando1 = POperandos.top();
+        POperandos.pop();
+
+        //obtiene una direccion correspondiente al avail
+        int resultado = obtenerAvail();
+
+        //se obtiene el operador
+        cops operador = POperadores.top();
+
+        //genera cuadruplo
+        generarCuadruplo(operador,operando1,operando2,resultado);
+
+        if(esAvail(operando1))
+            liberarAvail(operando1);
+
+        if(esAvail(operando2))
+            liberarAvail(operando2);
+
+        POperandos.push(resultado);
+        PTipos.push(t1);
+
+        POperadores.pop();
+    }else{
+        throw "Error semantico, tipos no compatibles";
+    }
+}
 
 //EXPR
 //ID O CTE

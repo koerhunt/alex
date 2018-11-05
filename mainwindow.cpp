@@ -429,10 +429,11 @@ void MainWindow::AnalizaPaso(){
                         ACTION_2011();
                         break;
                     case 2012:
-//                        ACTION_2012(Ltoken);
+                        //lista
+                        ACTION_2012(Stoken);
                         break;
                     case 2013:
-//                        ACTION_2013();
+                        ACTION_2013();
                         break;
                     case 2014:
 //                        ACTION_2014();
