@@ -107,7 +107,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget->setColumnCount(4);
 
     asignarTablaCuadruplos(ui->tableWidget_2);
-
+}
+void MainWindow::toggled(){
+    cout<<"clicked"<<endl;
 }
 
 MainWindow::~MainWindow()
@@ -557,7 +559,12 @@ void MainWindow::AnalizaPaso(){
 //Metodos de la GUI
 
 void MainWindow::on_pushButton_3_clicked(){
-    AnalizaPaso();
+    switchCode();
+    int i = this->ui->tableWidget_2->rowCount();
+    for(int j=0;j<=i;j++){
+        this->ui->tableWidget_2->removeRow(0);
+    }
+    imprimirCuadruplos();
 }
 
 void MainWindow::on_pushButton_2_clicked()

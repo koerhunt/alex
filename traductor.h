@@ -9,8 +9,7 @@
 #include <string.h>
 #include <QTableWidget>
 
-#define TRADUCIR false
-
+bool traducir = false;
 using namespace std;
 
 typedef string cadena_tipo;
@@ -137,7 +136,11 @@ SimbolosRowPtr buscarAddrEnTDS(int);
 void imprimirCuadruplos();
 void imprimirTDS();
 
+
 //Implementacion de funciones
+void switchCode(){
+    traducir = !traducir;
+}
 
 SimbolosRowPtr buscarAddrEnTDS(int a){
     SimbolosRowPtr nodo;
@@ -209,16 +212,16 @@ CuadruploPtr BuscarCuadruplo(int count)
 //imprme la tabla de cuadruplos
 void imprimirCuadruplos(){
 
-    cout<<"      CUADRUPLOS     "<<endl;
-    cout<<"---------------------"<<endl;
-    cout<<" c "<<" OP1 "<<" OP2 "<<" RES "<<endl;
+//    cout<<"      CUADRUPLOS     "<<endl;
+//    cout<<"---------------------"<<endl;
+//    cout<<" c "<<" OP1 "<<" OP2 "<<" RES "<<endl;
 
     if(cuadruplos!=nullptr){
         CuadruploPtr node = cuadruplos;
         do{
 
             cuadruplos_ui->insertRow(cuadruplos_ui->rowCount());
-            if(!TRADUCIR){
+            if(!traducir){
                 cuadruplos_ui->setItem(cuadruplos_ui->rowCount()-1,0,new QTableWidgetItem(QString::number(node->key)));
                 cuadruplos_ui->setItem(cuadruplos_ui->rowCount()-1,1,new QTableWidgetItem(QString::number(node->cop)));
                 cuadruplos_ui->setItem(cuadruplos_ui->rowCount()-1,2,new QTableWidgetItem(QString::number(node->op1)));

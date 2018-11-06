@@ -19,6 +19,7 @@ public:
 
 public slots:
    void openFile();
+   void toggled();
 
 private slots:
    void on_pushButton_clicked();
