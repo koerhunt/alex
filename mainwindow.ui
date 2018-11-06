@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>986</width>
-    <height>479</height>
+    <height>1021</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <widget class="QPushButton" name="pushButton_2">
     <property name="geometry">
      <rect>
-      <x>340</x>
+      <x>120</x>
       <y>370</y>
       <width>121</width>
       <height>24</height>
@@ -62,6 +62,41 @@
       <height>341</height>
      </rect>
     </property>
+   </widget>
+   <widget class="QTableWidget" name="tableWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>410</y>
+      <width>501</width>
+      <height>521</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string>count</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>COP</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>OP1</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>OP2</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>RES</string>
+     </property>
+    </column>
    </widget>
   </widget>
   <widget class="QToolBar" name="mainToolBar">

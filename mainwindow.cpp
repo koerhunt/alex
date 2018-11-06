@@ -7,8 +7,9 @@
 #include "traductor.h"
 
 #define LEXICO_DEBUG false
-#define SINTACTICO_DEBUG false
+#define SINTACTICO_DEBUG true
 #define ACCIONES_DEBUG false
+#define CUADRUPLOS_TRADUCCION false
 
 typedef std::string tipo_cadena;
 
@@ -104,6 +105,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget->setColumnWidth(2,400);
     ui->tableWidget->setColumnWidth(3,400);
     ui->tableWidget->setColumnCount(4);
+
+    asignarTablaCuadruplos(ui->tableWidget_2);
 
 }
 

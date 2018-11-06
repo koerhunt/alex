@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include <iostream>
 #include <string.h>
+#include <QTableWidget>
+
+#define TRADUCIR false
 
 using namespace std;
 
@@ -69,6 +72,10 @@ typedef SimbolosRow *SimbolosRowPtr;
 typedef struct cuadruplo Cuadruplo;
 typedef Cuadruplo *CuadruploPtr;
 
+QTableWidget *cuadruplos_ui;
+void asignarTablaCuadruplos(QTableWidget *t){
+    cuadruplos_ui = t;
+}
 //PILAS
 
 //pila de operadores
@@ -108,7 +115,9 @@ static SimbolosRowPtr FinalElemTS;
 static SimbolosRowPtr TDS;
 
 //declaracion de funciones
-cadena_tipo obtenerTipo(tipos t);
+cadena_tipo obtenerTipo(tipos);
+cadena_tipo obtenerCOP(cops);
+cadena_tipo obtenerValor(int);
 
 void generarCuadruplo(cops,int,int,int);
 CuadruploPtr buscarCuadruplo(int );
@@ -207,7 +216,26 @@ void imprimirCuadruplos(){
     if(cuadruplos!=nullptr){
         CuadruploPtr node = cuadruplos;
         do{
-            cout<<node->key<<" "<<node->cop<<" "<<node->op1<<" "<<node->op2<<" "<<node->resl<<endl;
+
+            cuadruplos_ui->insertRow(cuadruplos_ui->rowCount());
+            if(!TRADUCIR){
+                cuadruplos_ui->setItem(cuadruplos_ui->rowCount()-1,0,new QTableWidgetItem(QString::number(node->key)));
+                cuadruplos_ui->setItem(cuadruplos_ui->rowCount()-1,1,new QTableWidgetItem(QString::number(node->cop)));
+                cuadruplos_ui->setItem(cuadruplos_ui->rowCount()-1,2,new QTableWidgetItem(QString::number(node->op1)));
+                cuadruplos_ui->setItem(cuadruplos_ui->rowCount()-1,3,new QTableWidgetItem(QString::number(node->op2)));
+                cuadruplos_ui->setItem(cuadruplos_ui->rowCount()-1,4,new QTableWidgetItem(QString::number(node->resl)));
+            }else{
+                cuadruplos_ui->setItem(cuadruplos_ui->rowCount()-1,0,new QTableWidgetItem(QString::number(node->key)));
+                cuadruplos_ui->setItem(cuadruplos_ui->rowCount()-1,1,new QTableWidgetItem(QString::fromStdString(obtenerCOP(node->cop))));
+                cuadruplos_ui->setItem(cuadruplos_ui->rowCount()-1,2,new QTableWidgetItem(QString::fromStdString(obtenerValor(node->op1))));
+                cuadruplos_ui->setItem(cuadruplos_ui->rowCount()-1,3,new QTableWidgetItem(QString::fromStdString(obtenerValor(node->op2))));
+                cuadruplos_ui->setItem(cuadruplos_ui->rowCount()-1,4,new QTableWidgetItem(QString::fromStdString(obtenerValor(node->resl))));
+            }
+
+
+//            cout<<node->key<<" "<<node->cop<<" "<<node->op1<<" "<<node->op2<<" "<<node->resl<<endl;
+//            cout<<node->key<<" "<<obtenerCOP(node->cop)<<" "<<obtenerValor(node->op1)<<" "<<obtenerValor(node->op2)<<" "<<obtenerValor(node->resl)<<endl;
+
             node = node->next2;
         }while(node!=nullptr);
     }else{
@@ -869,4 +897,81 @@ cadena_tipo obtenerTipo(tipos t){
     }
 }
 
+cadena_tipo obtenerCOP(cops c){
+    switch (c) {
+    case FONDO_FALSO:
+        return "-1";
+    case INPUT:
+        return "INPUT";
+    case OUTPUT:
+        return "OUTPUT";
+    case ASIG:
+        return ":=";
+    case OR:
+        return "OR";
+    case AND:
+        return "AND";
+    case DIF:
+        return "!";
+    case PLUS:
+        return "+";
+    case MINUS:
+        return "-";
+    case MULT:
+        return "*";
+    case DIV:
+        return "/";
+    case MODULUS:
+        return "%";
+    case EQUALS:
+        return "=";
+    case NOTEQUALS:
+        return "!=";
+    case LESSTHAN:
+        return "<";
+    case LESSOREQUALSTHAN:
+        return "<=";
+    case GREATERTHAN:
+        return ">";
+    case GREATEROREQUALSTHAN:
+        return ">=";
+    }
+}
 
+cadena_tipo obtenerValor(int dir){
+    if(dir==0){
+        return "--";
+    }
+    if(esAvail(dir)){
+        switch(dir){
+            case 5550:
+            return "TEMP1";
+            case 5551:
+            return "TEMP2";
+            case 5552:
+            return "TEMP3";
+            case 5553:
+            return "TEMP4";
+            case 5554:
+            return "TEMP5";
+            case 5555:
+            return "TEMP6";
+            case 5556:
+            return "TEMP7";
+            case 5557:
+            return "TEMP8";
+            case 5558:
+            return "TEMP9";
+            case 5559:
+            return "TEMP10";
+            case 5560:
+            return "TEMP11";
+        }
+        return std::to_string(dir);
+    }else{
+
+        //TODO IF IS CONSTANTE ...
+        SimbolosRowPtr n = buscarAddrEnTDS(dir);
+        return n->desc;
+    }
+}
