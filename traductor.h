@@ -368,102 +368,31 @@ void pushPO(int codeid, cadena_tipo lexema){
 
 }
 
-void ACTION_2015(){
-
-//    tipos t1,t2;
-
-//    t1 = PTipos.top();
-//    PTipos.pop();
-
-//    t2 = PTipos.top();
-//    PTipos.pop();
-
-//    //si top y top-1 son compatibles entonces
-//    if(t1==t2){
-
-//        //obtener operando 2
-//        int operando2 = POperandos.top();
-//        POperandos.pop();
-
-//        //obtener operando 1
-//        int operando1 = POperandos.top();
-//        POperandos.pop();
-
-//        //obtiene una direccion correspondiente al avail
-//        int resultado = obtenerAvail();
-
-//        //se obtiene el operador
-//        cops operador = POperadores.top();
-
-//        //genera cuadruplo
-//        generarCuadruplo(operador,operando1,operando2,resultado);
-
-//        if(esAvail(operando1))
-//            liberarAvail(operando1);
-
-//        if(esAvail(operando2))
-//            liberarAvail(operando2);
-
-//        POperandos.push(resultado);
-//        PTipos.push(t1);
-
-//        POperadores.pop();
-//    }else{
-//        throw "Error semantico, tipos no compatibles";
-//    }
-}
-
-void ACTION_2016(){
-
-//    tipos t1,t2;
-
-//    t1 = PTipos.top();
-//    PTipos.pop();
-
-//    t2 = PTipos.top();
-//    PTipos.pop();
-
-//    //si top y top-1 son compatibles entonces
-//    if(t1==t2){
-
-//        //obtener operando 2
-//        int operando2 = POperandos.top();
-//        POperandos.pop();
-
-//        //obtener operando 1
-//        int operando1 = POperandos.top();
-//        POperandos.pop();
-
-//        //obtiene una direccion correspondiente al avail
-//        int resultado = obtenerAvail();
-
-//        //se obtiene el operador
-//        cops operador = POperadores.top();
-
-//        //genera cuadruplo
-//        generarCuadruplo(operador,operando1,operando2,resultado);
-
-//        if(esAvail(operando1))
-//            liberarAvail(operando1);
-
-//        if(esAvail(operando2))
-//            liberarAvail(operando2);
-
-//        POperandos.push(resultado);
-//        PTipos.push(t1);
-
-//        POperadores.pop();
-//    }else{
-//        throw "Error semantico, tipos no compatibles";
-//    }
-}
-
 //=====> EXPRESIONES
 
+//ID O CTE
+void ACTION_2001(int code_id, cadena_tipo lexema){
+
+    //TODO
+
+    int addr = buscarIdEnTDS(lexema);
+    if(addr!=-1){
+        SimbolosRowPtr ptr = buscarAddrEnTDS(addr);
+
+        POperandos.push(addr);
+        PTipos.push(ptr->type);
+
+    }else{
+        cout<<"ERROR NO SE DECLARO EL IDENTIFICADOR: "<<lexema<<endl;
+    }
+}
+
+//push ||
 void ACTION_2002() {
     POperadores.push(OR);
 }
 
+//push &&
 void ACTION_2003 () {
     POperadores.push(AND);
 }
@@ -713,7 +642,6 @@ void ACTION_2013(){
     }
 }
 
-
 //genera cuadruplo del not (unario)
 void ACTION_2014(){
 
@@ -733,21 +661,98 @@ void ACTION_2014(){
     POperandos.push(resultado);
 
 }
-//EXPR
-//ID O CTE
-void ACTION_2001(int code_id, cadena_tipo lexema){
 
-    //TODO
+//genera cuadruplo de comparacion &&
+void ACTION_2015(){
 
-    int addr = buscarIdEnTDS(lexema);
-    if(addr!=-1){
-        SimbolosRowPtr ptr = buscarAddrEnTDS(addr);
+    tipos t1,t2;
 
-        POperandos.push(addr);
-        PTipos.push(ptr->type);
+    t1 = PTipos.top();
+    PTipos.pop();
 
+    t2 = PTipos.top();
+    PTipos.pop();
+
+    //si top y top-1 son compatibles entonces
+    if(t1==t2){
+
+        //obtener operando 2
+        int operando2 = POperandos.top();
+        POperandos.pop();
+
+        //obtener operando 1
+        int operando1 = POperandos.top();
+        POperandos.pop();
+
+        //obtiene una direccion correspondiente al avail
+        int resultado = obtenerAvail();
+
+        //se obtiene el operador
+        cops operador = POperadores.top();
+
+        //genera cuadruplo
+        generarCuadruplo(operador,operando1,operando2,resultado);
+
+        if(esAvail(operando1))
+            liberarAvail(operando1);
+
+        if(esAvail(operando2))
+            liberarAvail(operando2);
+
+        POperandos.push(resultado);
+        PTipos.push(t1);
+
+        POperadores.pop();
     }else{
-        cout<<"ERROR NO SE DECLARO EL IDENTIFICADOR: "<<lexema<<endl;
+        cout<<"tipos no compatibles para &&"<<endl;
+        throw "Error semantico, tipos no compatibles";
+    }
+}
+
+//genera cuadruplo de comparacion ||
+void ACTION_2016(){
+
+    tipos t1,t2;
+
+    t1 = PTipos.top();
+    PTipos.pop();
+
+    t2 = PTipos.top();
+    PTipos.pop();
+
+    //si top y top-1 son compatibles entonces
+    if(t1==t2){
+
+        //obtener operando 2
+        int operando2 = POperandos.top();
+        POperandos.pop();
+
+        //obtener operando 1
+        int operando1 = POperandos.top();
+        POperandos.pop();
+
+        //obtiene una direccion correspondiente al avail
+        int resultado = obtenerAvail();
+
+        //se obtiene el operador
+        cops operador = POperadores.top();
+
+        //genera cuadruplo
+        generarCuadruplo(operador,operando1,operando2,resultado);
+
+        if(esAvail(operando1))
+            liberarAvail(operando1);
+
+        if(esAvail(operando2))
+            liberarAvail(operando2);
+
+        POperandos.push(resultado);
+        PTipos.push(t1);
+
+        POperadores.pop();
+    }else{
+        cout<<"tipos no compatibles para ||"<<endl;
+        throw "Error semantico, tipos no compatibles";
     }
 }
 

@@ -6,8 +6,8 @@
 #include "QMessageBox"
 #include "traductor.h"
 
-#define LEXICO_DEBUG true
-#define SINTACTICO_DEBUG true
+#define LEXICO_DEBUG false
+#define SINTACTICO_DEBUG false
 #define ACCIONES_DEBUG false
 
 typedef std::string tipo_cadena;
@@ -383,7 +383,7 @@ void MainWindow::AnalizaPaso(){
                 //es accion (traduccion
                 if(ExecucionStack.top()>=2000&&ExecucionStack.top()<=2500){
 
-                    cout<<"ACCION ENCONTRADA: "<<ExecucionStack.top()<<endl;
+                    cout<<"ACCION ENCONTRADA: "<<ExecucionStack.top()<<" analizando con -> "<<Stoken<<endl;
 
                     int accion = ExecucionStack.top();
                     ExecucionStack.pop();
@@ -394,10 +394,12 @@ void MainWindow::AnalizaPaso(){
                         ACTION_2001(Stoken,Llexema);
                         break;
                     case 2002:
-//                        ACTION_2002();
+                        //lista
+                        ACTION_2002();
                         break;
                     case 2003:
-//                        ACTION_2003();
+                        //lista
+                        ACTION_2003();
                         break;
                     case 2004:
                         //lista
@@ -440,14 +442,16 @@ void MainWindow::AnalizaPaso(){
                         ACTION_2013();
                         break;
                     case 2014:
-                        //pendiente
+                        //lista
                         ACTION_2014();
                         break;
                     case 2015:
-//                        ACTION_2015();
+                        //lista
+                        ACTION_2015();
                         break;
                     case 2016:
-//                        ACTION_2016();
+                        //lista
+                        ACTION_2016();
                         break;
                     case 2017:
                         //lista
