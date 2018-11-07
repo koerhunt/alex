@@ -41,7 +41,10 @@ enum cops{
     LESSTHAN,
     LESSOREQUALSTHAN,
     GREATERTHAN,
-    GREATEROREQUALSTHAN
+    GREATEROREQUALSTHAN,
+    GOTO,
+    GOTOFALSO,
+    GOTOVERDADERO
 };
 
 //nodo de Estructura de cuadruplos
@@ -141,6 +144,22 @@ void imprimirTDS();
 void switchCode(){
     traducir = !traducir;
 }
+
+//rellenar un cuadruplo (res con cod)
+void rellenar(int a, int cod){
+
+     CuadruploPtr nodo;
+     nodo = cuadruplos;
+     do{
+         if(nodo->key==a){
+             nodo->resl = cod;
+             break;
+         }else{
+             nodo = nodo->next2;
+         }
+     }while(nodo!=nullptr);
+
+ }
 
 SimbolosRowPtr buscarAddrEnTDS(int a){
     SimbolosRowPtr nodo;
@@ -884,6 +903,42 @@ void ACTION_2021(){
 
 }
 
+//WHILE
+
+//guarda contador de saltos
+void ACTION_2023(){
+    PSaltos.push(CuadruplosCount);
+}
+
+
+void ACTION_2024(){
+        tipos aux = PTipos.top();
+        PTipos.pop();
+
+//        if(aux!=BOOLEANO){
+//            throw "Error semantico, tipos no compatibles";
+//        }
+//        else{
+            int resultado = POperandos.top();
+            POperandos.pop();
+
+            generarCuadruplo(GOTOFALSO,resultado,0,CuadruplosCount);
+            PSaltos.push(CuadruplosCount-1);
+
+//        }
+    }
+
+void ACTION_2025(){
+
+    int f = PSaltos.top();
+    PSaltos.pop();
+
+    int retorno=PSaltos.top();
+    PSaltos.pop();
+
+    generarCuadruplo(GOTO,0,0, retorno);
+    rellenar(f,CuadruplosCount);
+}
 
 
 // DESTRADUCCION (metodos de ayuda para entender los numeros que aparecen)
@@ -938,6 +993,12 @@ cadena_tipo obtenerCOP(cops c){
         return ">";
     case GREATEROREQUALSTHAN:
         return ">=";
+    case GOTO:
+        return "GOTO";
+    case GOTOFALSO:
+        return "GOTOF";
+    case GOTOVERDADERO:
+        return "GOTOV";
     }
 }
 
@@ -973,8 +1034,12 @@ cadena_tipo obtenerValor(int dir){
         return std::to_string(dir);
     }else{
 
-        //TODO IF IS CONSTANTE ...
-        SimbolosRowPtr n = buscarAddrEnTDS(dir);
-        return n->desc;
+        if(dir<1000){
+            return std::to_string(dir);
+        }else{
+            //TODO IF IS CONSTANTE ...
+            SimbolosRowPtr n = buscarAddrEnTDS(dir);
+            return n->desc;
+        }
     }
 }

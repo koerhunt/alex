@@ -7,7 +7,7 @@
 #include "traductor.h"
 
 #define LEXICO_DEBUG false
-#define SINTACTICO_DEBUG true
+#define SINTACTICO_DEBUG false
 #define ACCIONES_DEBUG false
 #define CUADRUPLOS_TRADUCCION false
 
@@ -482,6 +482,18 @@ void MainWindow::AnalizaPaso(){
                         //lista
                         ACTION_2022();
                         break;
+                    case 2023:
+                        //lista
+                        ACTION_2023();
+                        break;
+                    case 2024:
+                        //lista
+                        ACTION_2024();
+                        break;
+                    case 2025:
+                        //lista
+                        ACTION_2025();
+                        break;
                     }
                 }else{
                     cout<<"ERROR DE SINTAXIS, no coinciden los tokens"<<endl;
@@ -516,7 +528,7 @@ void MainWindow::AnalizaPaso(){
                 ExecucionStack.pop();
 
                 //insertar producciones a la pila
-                for(int i=9; i>=0;i--){
+                for(int i=10; i>=0;i--){
 
                     int elem2 = MATRIZ_DE_PRODUCCIONES[(elem-1)][i];
 
