@@ -87,8 +87,8 @@ struct tsc{
 };
 
 //primer elemento de la tabla
-tsc *lista_tsc;
-tsc *fin_tsc;
+static tsc *lista_tsc;
+static tsc *fin_tsc;
 
 //contador de la tabla de simbolos
 int simbolos_contador_const = 0;

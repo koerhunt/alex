@@ -107,6 +107,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget->setColumnCount(4);
 
     asignarTablaCuadruplos(ui->tableWidget_2);
+    asignarTablaSimbolos(ui->tableWidget_3);
 }
 void MainWindow::toggled(){
     cout<<"clicked"<<endl;
@@ -612,6 +613,8 @@ void MainWindow::on_pushButton_2_clicked()
 
 
     imprimirCuadruplos();
+    imprimirTDS();
+
     cout<<"\n ========= \n"<<endl;
     imprimirTDS();
 

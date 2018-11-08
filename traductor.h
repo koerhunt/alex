@@ -75,9 +75,14 @@ typedef SimbolosRow *SimbolosRowPtr;
 typedef struct cuadruplo Cuadruplo;
 typedef Cuadruplo *CuadruploPtr;
 
-QTableWidget *cuadruplos_ui;
+QTableWidget *cuadruplos_ui, *simbolos_ui;
+
 void asignarTablaCuadruplos(QTableWidget *t){
     cuadruplos_ui = t;
+}
+
+void asignarTablaSimbolos(QTableWidget *t){
+    simbolos_ui = t;
 }
 //PILAS
 
@@ -232,10 +237,6 @@ CuadruploPtr BuscarCuadruplo(int count)
 //imprme la tabla de cuadruplos
 void imprimirCuadruplos(){
 
-//    cout<<"      CUADRUPLOS     "<<endl;
-//    cout<<"---------------------"<<endl;
-//    cout<<" c "<<" OP1 "<<" OP2 "<<" RES "<<endl;
-
     if(cuadruplos!=nullptr){
         CuadruploPtr node = cuadruplos;
         do{
@@ -255,10 +256,6 @@ void imprimirCuadruplos(){
                 cuadruplos_ui->setItem(cuadruplos_ui->rowCount()-1,4,new QTableWidgetItem(QString::fromStdString(obtenerValor(node->resl))));
             }
 
-
-//            cout<<node->key<<" "<<node->cop<<" "<<node->op1<<" "<<node->op2<<" "<<node->resl<<endl;
-//            cout<<node->key<<" "<<obtenerCOP(node->cop)<<" "<<obtenerValor(node->op1)<<" "<<obtenerValor(node->op2)<<" "<<obtenerValor(node->resl)<<endl;
-
             node = node->next2;
         }while(node!=nullptr);
     }else{
@@ -269,14 +266,15 @@ void imprimirCuadruplos(){
 //imprme la tabla de simbolos
 void imprimirTDS(){
 
-    cout<<"  TABLA DE SIMBOLOS "<<endl;
-    cout<<"---------------------"<<endl;
-    cout<<" addr "<<" type "<<" desc "<<"  "<<endl;
-
     if(TDS!=nullptr){
         SimbolosRowPtr node = TDS;
         do{
-            cout<<" "<<node->count<<"  "<<node->type<<"  "<<node->desc<<" "<<endl;
+
+            simbolos_ui->insertRow(simbolos_ui->rowCount());
+            simbolos_ui->setItem(simbolos_ui->rowCount()-1,0,new QTableWidgetItem(QString::number(node->count)));
+            simbolos_ui->setItem(simbolos_ui->rowCount()-1,1,new QTableWidgetItem(QString::number(node->type)));
+            simbolos_ui->setItem(simbolos_ui->rowCount()-1,3,new QTableWidgetItem(QString::fromStdString(node->desc)));
+
             node = node->next2;
         }while(node!=nullptr);
     }else{

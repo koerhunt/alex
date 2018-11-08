@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>986</width>
-    <height>865</height>
+    <width>1398</width>
+    <height>851</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <widget class="QPushButton" name="pushButton_2">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>370</y>
+      <x>320</x>
+      <y>430</y>
       <width>121</width>
       <height>24</height>
      </rect>
@@ -33,7 +33,7 @@
       <x>10</x>
       <y>10</y>
       <width>441</width>
-      <height>341</height>
+      <height>391</height>
      </rect>
     </property>
     <property name="readOnly">
@@ -43,8 +43,8 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>370</y>
+      <x>210</x>
+      <y>430</y>
       <width>101</width>
       <height>24</height>
      </rect>
@@ -56,20 +56,40 @@
    <widget class="QTableWidget" name="tableWidget">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>420</y>
-      <width>451</width>
-      <height>341</height>
+      <x>10</x>
+      <y>520</y>
+      <width>431</width>
+      <height>241</height>
      </rect>
     </property>
+    <column>
+     <property name="text">
+      <string>tkn lex</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>lexema</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>granema</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>tkn sintactico</string>
+     </property>
+    </column>
    </widget>
    <widget class="QTableWidget" name="tableWidget_2">
     <property name="geometry">
      <rect>
       <x>470</x>
-      <y>10</y>
+      <y>60</y>
       <width>501</width>
-      <height>751</height>
+      <height>701</height>
      </rect>
     </property>
     <column>
@@ -101,14 +121,124 @@
    <widget class="QPushButton" name="pushButton_3">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>380</y>
+      <x>860</x>
+      <y>20</y>
       <width>101</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
      <string>toggle</string>
+    </property>
+   </widget>
+   <widget class="QTableWidget" name="tableWidget_3">
+    <property name="geometry">
+     <rect>
+      <x>990</x>
+      <y>40</y>
+      <width>391</width>
+      <height>251</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string>dir</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>type</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>ap</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>desc</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="QTableWidget" name="tableWidget_4">
+    <property name="geometry">
+     <rect>
+      <x>990</x>
+      <y>400</y>
+      <width>301</width>
+      <height>241</height>
+     </rect>
+    </property>
+    <property name="columnCount">
+     <number>3</number>
+    </property>
+    <column>
+     <property name="text">
+      <string>dir</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>type</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>desc</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>990</x>
+      <y>10</y>
+      <width>161</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Tabla de simbolos</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>1000</x>
+      <y>370</y>
+      <width>151</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Tabla de constantes</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>480</y>
+      <width>151</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Analisis Lexico</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>30</y>
+      <width>121</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Cuadruplos</string>
     </property>
    </widget>
   </widget>
@@ -126,7 +256,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>986</width>
+     <width>1398</width>
      <height>23</height>
     </rect>
    </property>
