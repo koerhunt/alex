@@ -66,19 +66,6 @@ void MainWindow::Init(){
     ExecucionStack.push('$'); //$ [fin de fichero]
     ExecucionStack.push(1);   //produccion program
 
-    //llenar el avail
-    PAvail.push(5560);
-    PAvail.push(5559);
-    PAvail.push(5558);
-    PAvail.push(5557);
-    PAvail.push(5556);
-    PAvail.push(5555);
-    PAvail.push(5554);
-    PAvail.push(5553);
-    PAvail.push(5552);
-    PAvail.push(5551);
-    PAvail.push(5550);
-
     //mostrar informacion y salir
     if(archivo.fail()){
         cout<<"No se pudo abrir el archivo";
@@ -108,6 +95,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     asignarTablaCuadruplos(ui->tableWidget_2);
     asignarTablaSimbolos(ui->tableWidget_3);
+    asignarTablaCostantes(ui->tableWidget_4);
 }
 void MainWindow::toggled(){
     cout<<"clicked"<<endl;
@@ -392,7 +380,7 @@ void MainWindow::AnalizaPaso(){
                 //es accion (traduccion
                 if(ExecucionStack.top()>=2000&&ExecucionStack.top()<=2500){
 
-                    cout<<"ACCION ENCONTRADA: "<<ExecucionStack.top()<<" analizando con -> "<<Stoken<<endl;
+//                    cout<<"ACCION ENCONTRADA: "<<ExecucionStack.top()<<" analizando con -> "<<Stoken<<endl;
 
                     int accion = ExecucionStack.top();
                     ExecucionStack.pop();
@@ -400,7 +388,7 @@ void MainWindow::AnalizaPaso(){
                     switch (accion) {
                     case 2001:
                         //lista
-                        ACTION_2001(Stoken,Llexema);
+                        ACTION_2001(Llexema);
                         break;
                     case 2002:
                         //lista
@@ -468,7 +456,7 @@ void MainWindow::AnalizaPaso(){
                         break;
                     case 2018:
                         //lista
-                        ACTION_2018(Stoken,Llexema);
+                        ACTION_2018(Llexema);
                         break;
                     case 2019:
                         //lista
@@ -615,8 +603,7 @@ void MainWindow::on_pushButton_2_clicked()
     imprimirCuadruplos();
     imprimirTDS();
 
-    cout<<"\n ========= \n"<<endl;
-    imprimirTDS();
+    imprimirTDC();
 
 }
 

@@ -9,10 +9,7 @@
 #include <string.h>
 #include <QTableWidget>
 
-bool traducir = false;
 using namespace std;
-
-typedef string cadena_tipo;
 
 //Valores para los tipos de datos
 enum tipos{
@@ -58,7 +55,11 @@ struct cuadruplo {
     struct cuadruplo *next2;
 };
 
-//nodo de Estructura de renglon de tabla de simbolos
+//Definiciones de tipo
+typedef string cadena_tipo;
+
+//ESTRUCTURAS
+//nodo de Estructura de de tabla de simbolos
 struct simbolosRow{
     tipos type;
     int count;
@@ -68,23 +69,25 @@ struct simbolosRow{
     struct simbolosRow *next2;
 };
 
-//Definiciones de tipos
+struct constantesRow{
+    tipos type;
+    int count;
+    cadena_tipo desc;
+    struct constantesRow *next2;
+};
+
+//Definiciones de tipos de estructuras
 typedef struct simbolosRow SimbolosRow;
 typedef SimbolosRow *SimbolosRowPtr;
 
 typedef struct cuadruplo Cuadruplo;
 typedef Cuadruplo *CuadruploPtr;
 
-QTableWidget *cuadruplos_ui, *simbolos_ui;
+typedef struct constantesRow ConstantesRow;
+typedef ConstantesRow *ConstantesRowPtr;
 
-void asignarTablaCuadruplos(QTableWidget *t){
-    cuadruplos_ui = t;
-}
-
-void asignarTablaSimbolos(QTableWidget *t){
-    simbolos_ui = t;
-}
-//PILAS
+//Variables y metodos para la UI
+QTableWidget *cuadruplos_ui, *simbolos_ui, *constantes_ui;
 
 //pila de operadores
 static std::stack<cops> POperadores;
@@ -101,14 +104,19 @@ static std::stack<int> PAvail;
 //pila de saltos
 static std::stack<int> PSaltos;
 
-//contador de la estructura de declaracion
+//variable auxilar para la declaracion
 static tipos DecAux;
 
 //contador de la estructura de la tabla de simbolos
 static int SimbolosCount = 3500;
+static int ConstantesCount = 7000;
+static int AvailCount = 5550;
 
 //contador de cuadruplos
 static int CuadruplosCount = 1;
+
+//traductor de codigos a palabras
+static bool traducir;
 
 //raiz de la estructura
 static CuadruploPtr cuadruplos;
@@ -122,6 +130,12 @@ static SimbolosRowPtr FinalElemTS;
 //raiz de la tabla de simbolos
 static SimbolosRowPtr TDS;
 
+//raiz de la tabla de constantes
+static ConstantesRowPtr TDC;
+
+//raiz de la tabla de constantes
+static ConstantesRowPtr FinalElemTC;
+
 //declaracion de funciones
 cadena_tipo obtenerTipo(tipos);
 cadena_tipo obtenerCOP(cops);
@@ -134,8 +148,8 @@ void pushPO(int, char*);
 SimbolosRowPtr buscarOp(int);
 
 int buscarIdEnTDS(char*);
-int buscarODeclararEnTDS(int,char*);
-//TODO buscar AddrEnTDS
+
+ConstantesRowPtr buscarODeclararEnTDC(tipos,cadena_tipo);
 
 void ejecutarAccion(int);
 bool esAvail(int);
@@ -145,6 +159,17 @@ SimbolosRowPtr buscarAddrEnTDS(int);
 void imprimirCuadruplos();
 void imprimirTDS();
 
+void asignarTablaCuadruplos(QTableWidget *t){
+    cuadruplos_ui = t;
+}
+
+void asignarTablaSimbolos(QTableWidget *t){
+    simbolos_ui = t;
+}
+
+void asignarTablaCostantes(QTableWidget *t){
+    constantes_ui = t;
+}
 
 //Implementacion de funciones
 void switchCode(){
@@ -167,6 +192,20 @@ void rellenar(int a, int cod){
 
  }
 
+ConstantesRowPtr buscarAddrEnTDC(int a){
+    ConstantesRowPtr nodo;
+    nodo = TDC;
+    do{
+        if(nodo->count==a){
+            break;
+        }else{
+            nodo = nodo->next2;
+        }
+    }while(nodo!=nullptr);
+    return nodo;
+}
+
+
 SimbolosRowPtr buscarAddrEnTDS(int a){
     SimbolosRowPtr nodo;
     nodo = TDS;
@@ -181,9 +220,16 @@ SimbolosRowPtr buscarAddrEnTDS(int a){
 }
 
 int obtenerAvail(){
-    int tmp = PAvail.top();
-    PAvail.pop();
-    return tmp;
+
+    if(PAvail.empty()){
+        int navail = AvailCount;
+        AvailCount++;
+        return navail;
+    }else{
+        int tmp = PAvail.top();
+        PAvail.pop();
+        return tmp;
+    }
 }
 
 void liberarAvail(int addr){
@@ -282,9 +328,60 @@ void imprimirTDS(){
     }
 }
 
+//imprme la tabla de ctes
+void imprimirTDC(){
+
+    if(TDC!=nullptr){
+        ConstantesRowPtr node = TDC;
+        do{
+
+            constantes_ui->insertRow(constantes_ui->rowCount());
+            constantes_ui->setItem(constantes_ui->rowCount()-1,0,new QTableWidgetItem(QString::number(node->count)));
+            constantes_ui->setItem(constantes_ui->rowCount()-1,1,new QTableWidgetItem(QString::number(node->type)));
+            constantes_ui->setItem(constantes_ui->rowCount()-1,2,new QTableWidgetItem(QString::fromStdString(node->desc)));
+
+            node = node->next2;
+        }while(node!=nullptr);
+    }else{
+        cout<<" !!!! La tabla de simbolos esta vacia"<<endl;
+    }
+}
+
+
 //identifica si la direccion pertenece al avail
 bool esAvail(int n){
     return n>=5550&&n<=6000;
+}
+
+SimbolosRowPtr DeclararEnTDS(cadena_tipo lexema){
+
+        SimbolosRowPtr newPtr = new SimbolosRow();
+
+        if(newPtr!=nullptr){
+            //si hay espacio en memoria
+
+            newPtr->next2 = nullptr;
+            newPtr->count = SimbolosCount;
+
+            newPtr->desc = lexema;
+
+            if(TDS==nullptr){
+              //lista vacia, crear primer elemento
+              TDS = newPtr;
+              FinalElemTS = newPtr;
+            }else{
+                FinalElemTS->next2 = newPtr;
+                FinalElemTS = newPtr;
+            }
+
+            //incrementar contador de la tabla de simbolos
+            SimbolosCount++;
+
+            //retornar la direccion declarada
+            return newPtr;
+        }else{
+            throw "no hay espacio disponible en memoria";
+        }
 }
 
 //devuelve la direccion del id
@@ -307,127 +404,13 @@ int buscarIdEnTDS(cadena_tipo lexema){
     return -1;
 }
 
-//devuelve la direccion de la constante existente
-//o de una nueva declarada
-int buscarODeclararEnTDS(int codeid,cadena_tipo lexema){
-
-    //busca si se encuentra alguna entrada
-    int baddr = buscarIdEnTDS(lexema);
-
-    //si no se encontro
-    if(baddr==-1){
-
-        //declarar
-        //SimbolosRow *newPtr; //nuevo nodo
-        //reservar espacio para nuevo nodo
-        //newPtr = (SimbolosRowPtr) malloc(sizeof(SimbolosRow));
-
-        SimbolosRowPtr newPtr = new SimbolosRow();
-
-        if(newPtr!=nullptr){
-            //si hay espacio en memoria
-
-            newPtr->next2 = nullptr;
-            newPtr->count = SimbolosCount;
-
-            newPtr->desc = lexema;
-
-            switch(codeid){
-                case 1001:
-                    newPtr->type = ENTERO;
-                    break;
-                case 1002:
-                    newPtr->type = FLOTANTE;
-                    break;
-                case 1003:
-                    newPtr->type = FLOTANTE;
-                    break;
-                case 1030:
-                    newPtr->type = CARACTER;
-                    break;
-                case 1031:
-                    newPtr->type = CADENA;
-                    break;
-                case 1050:
-                    newPtr->type = BOOLEANO;
-                    break;
-            }
-
-            if(TDS==nullptr){
-              //lista vacia, crear primer elemento
-              TDS = newPtr;
-              FinalElemTS = newPtr;
-            }else{
-                FinalElemTS->next2 = newPtr;
-                FinalElemTS = newPtr;
-            }
-
-            //incrementar contador de la tabla de simbolos
-            SimbolosCount++;
-
-            //retornar la direccion declarada
-            return newPtr->count;
-        }else{
-            throw "no hay espacio disponible en memoria";
-        }
-    }else{
-        //si encontro, retornar la direccion
-        return baddr;
-    }
-}
-
-//Push pila de operandos
-//obtiene la direccion del id o constante y le hace
-//push a la pila de operandos
-void pushPO(int codeid, cadena_tipo lexema){
-
-    if(codeid==1000){
-
-        //es id
-        int addr = buscarIdEnTDS(lexema);
-
-        if(addr>=0){
-
-            //direccion valida push
-            POperandos.push(addr);
-
-            //push tambien a la pila de tipos
-            SimbolosRowPtr nodo = buscarAddrEnTDS(addr);
-            PTipos.push(nodo->type);
-
-
-        }else{
-            //el elemento no existe
-            throw "variable no declarada";
-        }
-
-    }else{
-        if(codeid==1001||codeid==1002||codeid==1003||codeid==1030||codeid==1031){
-            //es constante numerica
-
-            int addr = buscarODeclararEnTDS(codeid,lexema);
-            POperandos.push(addr);
-
-            //push tambien a la pila de tipos
-            SimbolosRowPtr nodo = buscarAddrEnTDS(addr);
-            PTipos.push(nodo->type);
-
-        }else{
-            //simbolo no reconocido
-            throw "Simbolo no apto para la pila de operandos";
-        }
-    }
-
-}
-
 //=====> EXPRESIONES
 
-//ID O CTE
-void ACTION_2001(int code_id, cadena_tipo lexema){
-
-    //TODO
+//ID
+void ACTION_2001(cadena_tipo lexema){
 
     int addr = buscarIdEnTDS(lexema);
+
     if(addr!=-1){
         SimbolosRowPtr ptr = buscarAddrEnTDS(addr);
 
@@ -452,7 +435,6 @@ void ACTION_2003 () {
 //mete operador !
 void ACTION_2004 () {
     POperadores.push(DIF);
-    cout<<"push !"<<endl;
 }
 
 //push + o -
@@ -461,14 +443,12 @@ void ACTION_2005 (int type) {
     if(type == 1004) {
          //1004 +
         POperadores.push(PLUS);
-        cout<<"push + "<<endl;
     } else {
         if(type==1005){
         //1005 -
         POperadores.push(MINUS);
-        cout<<"push - "<<endl;
         }else{
-            cout<<"operador no valido + -"<<endl;
+            cout<<"operador no valido se esperaba + o -"<<endl;
         }
     }
 }
@@ -478,22 +458,87 @@ void ACTION_2006 (int type) {
     //*
     if(type == 1006) {
         POperadores.push(MULT);
-        cout<<"push * "<<endl;
     } else {
         // /
         if(type == 1007) {
             POperadores.push(DIV);
-            cout<<"push / "<<endl;
         } else {
             // %
             if(type == 1008){
                 POperadores.push(MODULUS);
-                cout<<"push % "<<endl;
             }else{
-                cout<<"operador no valido * / %"<<endl;
+                cout<<"operador no valido, se esperaba * / %"<<endl;
             }
         }
     }
+}
+
+
+ConstantesRowPtr buscarODeclararEnTDC(int codeid, cadena_tipo lex){
+
+
+    ConstantesRowPtr nodo,encontrado;
+    nodo = TDC;
+
+
+    if(nodo!=nullptr){
+      //recorrer la lista en busca del elemento
+      do{
+        if(nodo->desc==lex){
+            return nodo;
+        }
+        nodo = nodo->next2;
+      }while(nodo!=nullptr);
+    }
+
+
+    ConstantesRowPtr newPtr = new ConstantesRow();
+
+    if(newPtr!=nullptr){
+        //si hay espacio en memoria
+
+        newPtr->next2 = nullptr;
+        newPtr->count = ConstantesCount;
+
+        newPtr->desc = lex;
+        cout<<"declarando"<<lex<<endl;
+
+        switch(codeid){
+            case 1001:
+                newPtr->type = ENTERO;
+                break;
+            case 1002:
+                newPtr->type = FLOTANTE;
+                break;
+            case 1003:
+                newPtr->type = FLOTANTE;
+                break;
+            case 1030:
+                newPtr->type = CARACTER;
+                break;
+            case 1031:
+                newPtr->type = CADENA;
+                break;
+            case 1050:
+                newPtr->type = BOOLEANO;
+                break;
+        }
+
+        if(TDC==nullptr){
+          //lista vacia, crear primer elemento
+          TDC = newPtr;
+          FinalElemTC = newPtr;
+        }else{
+            FinalElemTC->next2 = newPtr;
+            FinalElemTC = newPtr;
+        }
+
+        //incrementar contador de la tabla de simbolos
+        ConstantesCount++;
+
+        //retornar la direccion declarada
+        return newPtr;
+        }
 }
 
 //busca o declara cte
@@ -501,11 +546,10 @@ void ACTION_2007 (int type, cadena_tipo lex){
 
     //declara o busca la constante con su tipo
     //en este metodo se comprueba y se dan de alta con su tipo
-    int addr = buscarODeclararEnTDS(type,lex);
-    tipos tip = buscarAddrEnTDS(addr)->type;
+    ConstantesRowPtr nodo = buscarODeclararEnTDC(type,lex);
 
-    POperandos.push(addr);
-    PTipos.push(tip);
+    POperandos.push(nodo->count);
+    PTipos.push(nodo->type);
 
 }
 
@@ -521,7 +565,6 @@ void ACTION_2008 (int codeid) {
 //saca marca de fondo falso
 void ACTION_2009 () {
     POperadores.pop();
-    cout<<"quitada marca de fondo falso"<<endl;
 }
 
 //cuadruplo de multiplicacion, division y modulo
@@ -562,7 +605,9 @@ void ACTION_2010 () {
             POperadores.pop();
 
         } else {
-            throw "Error semántico";
+            cout<<"tipos no compatibles para la operacion de ( * | / | % )"<<endl;
+            cout<<"encontrado "<<obtenerTipo(t1)<<" y "<<obtenerTipo(t2)<<endl;
+
         }
     }
 }
@@ -605,7 +650,8 @@ void ACTION_2011 () {
             POperadores.pop();
 
         } else {
-            throw "Error semántico";
+            cout<<"tipos no compatibles para la operacion de + y -"<<endl;
+            cout<<"encontrado "<<obtenerTipo(t1)<<" y "<<obtenerTipo(t2)<<endl;
         }
     }
 }
@@ -616,32 +662,26 @@ void ACTION_2012(int codeid){
         //==
         case 1020:
             POperadores.push(EQUALS);
-            cout<<"push "<<"=="<<endl;
         break;
         //!=
         case 1018:
             POperadores.push(NOTEQUALS);
-            cout<<"push "<<"!="<<endl;
         break;
         //<
         case 1023:
             POperadores.push(LESSTHAN);
-            cout<<"push "<<"<"<<endl;
         break;
         //<=
         case 1024:
             POperadores.push(LESSOREQUALSTHAN);
-            cout<<"push "<<"<="<<endl;
         break;
         //>
         case 1021:
             POperadores.push(GREATERTHAN);
-            cout<<"push "<<">"<<endl;
         break;
         //>=
         case 1022:
             POperadores.push(GREATEROREQUALSTHAN);
-            cout<<"push "<<">="<<endl;
         break;
     default:
         cout<<"OPREL no valido: "<<codeid<<endl;
@@ -686,11 +726,12 @@ void ACTION_2013(){
             liberarAvail(operando2);
 
         POperandos.push(resultado);
-        PTipos.push(t1);
+        PTipos.push(BOOLEANO);
 
         POperadores.pop();
     }else{
-        throw "Error semantico, tipos no compatibles";
+        cout<<"tipos no compatibles para la operacion de + y -"<<endl;
+        cout<<"encontrado "<<obtenerTipo(t1)<<" y "<<obtenerTipo(t2)<<endl;
     }
 }
 
@@ -698,19 +739,21 @@ void ACTION_2013(){
 void ACTION_2014(){
 
     //TODO si top de la pila es booleano
+    if(PTipos.top()==BOOLEANO){
 
-    int resultado = POperandos.top();
-    POperandos.pop();
+        int resultado = POperandos.top();
+        POperandos.pop();
 
-    cops operador = POperadores.top();
-    POperadores.pop();
+        cops operador = POperadores.top();
+        POperadores.pop();
 
-    //generar cuadruplo del not
-    generarCuadruplo(operador,0,0,resultado);
+        //generar cuadruplo del not
+        generarCuadruplo(operador,0,0,resultado);
 
-    //linea extra no viene
-    //en los diagramas pero debe de ir (?)
-    POperandos.push(resultado);
+        //linea extra no viene
+        //en los diagramas pero debe de ir (?)
+        POperandos.push(resultado);
+    }
 
 }
 
@@ -726,7 +769,7 @@ void ACTION_2015(){
     PTipos.pop();
 
     //si top y top-1 son compatibles entonces
-    if(t1==t2){
+    if(t1==BOOLEANO&&t2==BOOLEANO){
 
         //obtener operando 2
         int operando2 = POperandos.top();
@@ -757,7 +800,7 @@ void ACTION_2015(){
         POperadores.pop();
     }else{
         cout<<"tipos no compatibles para &&"<<endl;
-        throw "Error semantico, tipos no compatibles";
+        cout<<"encontrado "<<obtenerTipo(t1)<<" y "<<obtenerTipo(t2)<<endl;
     }
 }
 
@@ -773,7 +816,7 @@ void ACTION_2016(){
     PTipos.pop();
 
     //si top y top-1 son compatibles entonces
-    if(t1==t2){
+    if(t1==BOOLEANO&&t2==BOOLEANO){
 
         //obtener operando 2
         int operando2 = POperandos.top();
@@ -808,7 +851,6 @@ void ACTION_2016(){
     }
 }
 
-
 //=====> ASIGNACON (funciona)
 void ACTION_2022(){
 
@@ -837,7 +879,6 @@ void ACTION_2022(){
 }
 
 //Declaracion
-//TODO agregar dato booleano
 void ACTION_2017(int code_id){
 
     if(code_id == 1033){
@@ -866,14 +907,24 @@ void ACTION_2017(int code_id){
 
 }
 
-void ACTION_2018(int code_id, cadena_tipo lexema){
-    int a = buscarODeclararEnTDS(code_id,lexema);
-    POperandos.push(a);
+void ACTION_2018(cadena_tipo lexema){
+
+    int a = buscarIdEnTDS(lexema);
+
+    if(a==-1){
+
+        SimbolosRowPtr nodo = DeclararEnTDS(lexema);
+        POperandos.push(nodo->count);
+
+    }else{
+        cout<<"la variable ya se encuentra declarada"<<endl;;
+    }
 }
 
 void ACTION_2019(){
 
     while(!POperandos.empty()){
+
         int a = POperandos.top();
         POperandos.pop();
 
@@ -892,7 +943,6 @@ void ACTION_2020(cadena_tipo lexema){
         generarCuadruplo(INPUT,0,0,addr);
     }else{
         cout<<"NO SE DECLARO "<<lexema<<endl;
-        throw "ERROR";
     }
 }
 
@@ -915,10 +965,10 @@ void ACTION_2024(){
         tipos aux = PTipos.top();
         PTipos.pop();
 
-//        if(aux!=BOOLEANO){
-//            throw "Error semantico, tipos no compatibles";
-//        }
-//        else{
+        if(aux!=BOOLEANO){
+            cout<<"WHILEDO -> no se esta evaluando una expresion booleana valida"<<endl;
+        }
+        else{
             int resultado = POperandos.top();
             POperandos.pop();
 
@@ -929,7 +979,7 @@ void ACTION_2024(){
                 liberarAvail(resultado);
             }
 
-//        }
+        }
     }
 
 void ACTION_2025(){
@@ -943,6 +993,7 @@ void ACTION_2025(){
     generarCuadruplo(GOTO,0,0, retorno);
     rellenar(f,CuadruplosCount);
 }
+
 //EST_DO
 void ACTION_2026(){
     PSaltos.push(CuadruplosCount);
@@ -952,13 +1003,18 @@ void ACTION_2027(){
     int expr = POperandos.top();
     POperandos.pop();
 
-    int salto = PSaltos.top();
-    PSaltos.pop();
+    if(expr!=BOOLEANO){
+        cout<<"DO -> no se esta evaluando una expresion booleana valida"<<endl;
+    }
+    else{
+        int salto = PSaltos.top();
+        PSaltos.pop();
 
-    generarCuadruplo(GOTOVERDADERO,expr,0,salto);
+        generarCuadruplo(GOTOVERDADERO,expr,0,salto);
 
-    if(esAvail(expr)){
-        liberarAvail(expr);
+        if(esAvail(expr)){
+            liberarAvail(expr);
+        }
     }
 }
 
@@ -968,12 +1024,10 @@ void ACTION_2028(){
     int aux = PTipos.top();
     PTipos.pop();
 
-    /*if(aux != bool()){
-
-        throw "Error semántico";
-
-    }*//*else/*/
-    {
+    if(aux!=BOOLEANO){
+        cout<<"IF -> no se esta evaluando una expresion booleana valida"<<endl;
+    }
+    else{
        int resultado = POperandos.top();
         POperandos.pop();
         generarCuadruplo(GOTOFALSO,resultado,0,0);
@@ -1072,40 +1126,24 @@ cadena_tipo obtenerValor(int dir){
     if(dir==0){
         return "--";
     }
+
     if(esAvail(dir)){
-        switch(dir){
-            case 5550:
-            return "TEMP1";
-            case 5551:
-            return "TEMP2";
-            case 5552:
-            return "TEMP3";
-            case 5553:
-            return "TEMP4";
-            case 5554:
-            return "TEMP5";
-            case 5555:
-            return "TEMP6";
-            case 5556:
-            return "TEMP7";
-            case 5557:
-            return "TEMP8";
-            case 5558:
-            return "TEMP9";
-            case 5559:
-            return "TEMP10";
-            case 5560:
-            return "TEMP11";
-        }
-        return std::to_string(dir);
+        int r = dir%5550 +1;
+        cadena_tipo t = "TEMP";
+        t.append(std::to_string(r));
+        return t;
     }else{
 
         if(dir<1000){
             return std::to_string(dir);
         }else{
-            //TODO IF IS CONSTANTE ...
-            SimbolosRowPtr n = buscarAddrEnTDS(dir);
-            return n->desc;
+            if(dir>=7000){
+                ConstantesRowPtr n = buscarAddrEnTDC(dir);
+                return n->desc;
+            }else{
+                SimbolosRowPtr n = buscarAddrEnTDS(dir);
+                return n->desc;
+            }
         }
     }
 }
