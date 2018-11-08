@@ -330,6 +330,9 @@ int MainWindow::relacionaAlex(int tkn){
             if(QString::fromUtf8(Llexema)  == "enddo") return 1046;
             if(QString::fromUtf8(Llexema)  == "read") return 1047;
             if(QString::fromUtf8(Llexema)  == "write") return 1048;
+            if(QString::fromUtf8(Llexema)  == "bool") return 1049;
+            if(QString::fromUtf8(Llexema)  == "true") return 1050;
+            if(QString::fromUtf8(Llexema)  == "false") return 1050;
             return 1000; //es identificador
     }
 }
@@ -493,6 +496,26 @@ void MainWindow::AnalizaPaso(){
                     case 2025:
                         //lista
                         ACTION_2025();
+                        break;
+                    case 2026:
+                        //lista
+                        ACTION_2026();
+                        break;
+                    case 2027:
+                        //lista
+                        ACTION_2027();
+                        break;
+                    case 2028:
+                        //lista
+                        ACTION_2028();
+                        break;
+                    case 2029:
+                        //lista
+                        ACTION_2029();
+                        break;
+                    case 2030:
+                        //lista
+                        ACTION_2030();
                         break;
                     }
                 }else{

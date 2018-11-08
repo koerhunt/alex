@@ -19,7 +19,8 @@ enum tipos{
     ENTERO=2501,
     FLOTANTE,
     CARACTER,
-    CADENA
+    CADENA,
+    BOOLEANO
 };
 
 //Valores para los codigos de operacion
@@ -102,7 +103,7 @@ static tipos DecAux;
 static int SimbolosCount = 3500;
 
 //contador de cuadruplos
-static int CuadruplosCount = 0;
+static int CuadruplosCount = 1;
 
 //raiz de la estructura
 static CuadruploPtr cuadruplos;
@@ -348,6 +349,9 @@ int buscarODeclararEnTDS(int codeid,cadena_tipo lexema){
                     break;
                 case 1031:
                     newPtr->type = CADENA;
+                    break;
+                case 1050:
+                    newPtr->type = BOOLEANO;
                     break;
             }
 
@@ -847,9 +851,9 @@ void ACTION_2017(int code_id){
         DecAux = FLOTANTE;
     }
 
-    /*TODO if(code_id == bool (103?){
-     * DecAux = Bool;
-     * }*/
+    if(code_id == 1049){
+        DecAux = BOOLEANO;
+    }
 
     if(code_id == 1035)
     {
@@ -905,11 +909,9 @@ void ACTION_2021(){
 
 //WHILE
 
-//guarda contador de saltos
 void ACTION_2023(){
     PSaltos.push(CuadruplosCount);
 }
-
 
 void ACTION_2024(){
         tipos aux = PTipos.top();
@@ -925,6 +927,10 @@ void ACTION_2024(){
             generarCuadruplo(GOTOFALSO,resultado,0,CuadruplosCount);
             PSaltos.push(CuadruplosCount-1);
 
+            if(esAvail(resultado)){
+                liberarAvail(resultado);
+            }
+
 //        }
     }
 
@@ -939,7 +945,67 @@ void ACTION_2025(){
     generarCuadruplo(GOTO,0,0, retorno);
     rellenar(f,CuadruplosCount);
 }
+//EST_DO
+void ACTION_2026(){
+    PSaltos.push(CuadruplosCount);
+}
 
+void ACTION_2027(){
+    int expr = POperandos.top();
+    POperandos.pop();
+
+    int salto = PSaltos.top();
+    PSaltos.pop();
+
+    generarCuadruplo(GOTOVERDADERO,expr,0,salto);
+
+    if(esAvail(expr)){
+        liberarAvail(expr);
+    }
+}
+
+//EST_IF
+void ACTION_2028(){
+
+    int aux = PTipos.top();
+    PTipos.pop();
+
+    /*if(aux != bool()){
+
+        throw "Error semántico";
+
+    }*//*else/*/
+    {
+       int resultado = POperandos.top();
+        POperandos.pop();
+        generarCuadruplo(GOTOFALSO,resultado,0,0);
+
+        PSaltos.push((CuadruplosCount-1));
+
+        if(esAvail(resultado)){
+            liberarAvail(resultado);
+        }
+
+    }
+}
+
+void ACTION_2029(){
+
+    generarCuadruplo(GOTO,0,0,0);
+    int falso = PSaltos.top();
+    PSaltos.pop();
+
+    rellenar(falso,CuadruplosCount);
+    PSaltos.push(CuadruplosCount - 1);
+
+}
+
+void ACTION_2030(){
+    int  fin = PSaltos.top();
+    PSaltos.pop();
+
+    rellenar(fin,CuadruplosCount);
+}
 
 // DESTRADUCCION (metodos de ayuda para entender los numeros que aparecen)
 cadena_tipo obtenerTipo(tipos t){
@@ -952,6 +1018,8 @@ cadena_tipo obtenerTipo(tipos t){
         return "caracter";
     case CADENA:
         return "cadena";
+    case BOOLEANO:
+        return "booleano";
     }
 }
 
