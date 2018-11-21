@@ -8,6 +8,9 @@
 #include <iostream>
 #include <string.h>
 #include <QTableWidget>
+#include <QInputDialog>
+#include <QTextBrowser>
+#include <QPlainTextEdit>
 
 using namespace std;
 
@@ -64,7 +67,7 @@ struct simbolosRow{
     tipos type;
     int count;
     cadena_tipo desc;
-    int *apram;
+    unsigned char *apram;
     int *apnext;
     struct simbolosRow *next2;
 };
@@ -73,7 +76,15 @@ struct constantesRow{
     tipos type;
     int count;
     cadena_tipo desc;
+    unsigned char *apram;
     struct constantesRow *next2;
+};
+
+struct tempRow{
+    tipos type;
+    int addr;
+    unsigned char *apram;
+    struct tempRow *next2;
 };
 
 //Definiciones de tipos de estructuras
@@ -86,9 +97,13 @@ typedef Cuadruplo *CuadruploPtr;
 typedef struct constantesRow ConstantesRow;
 typedef ConstantesRow *ConstantesRowPtr;
 
+typedef struct tempRow TempRow;
+typedef TempRow *TempRowPtr;
+
 //Variables y metodos para la UI
 QTableWidget *cuadruplos_ui, *simbolos_ui, *constantes_ui;
 
+QPlainTextEdit *outputConsole;
 //pila de operadores
 static std::stack<cops> POperadores;
 
@@ -136,6 +151,9 @@ static ConstantesRowPtr TDC;
 //raiz de la tabla de constantes
 static ConstantesRowPtr FinalElemTC;
 
+//raiz de la tabla temporal
+static TempRowPtr temporales;
+
 //declaracion de funciones
 cadena_tipo obtenerTipo(tipos);
 cadena_tipo obtenerCOP(cops);
@@ -169,6 +187,10 @@ void asignarTablaSimbolos(QTableWidget *t){
 
 void asignarTablaCostantes(QTableWidget *t){
     constantes_ui = t;
+}
+
+void asingarConsolaDeSalida(QPlainTextEdit *t){
+    outputConsole = t;
 }
 
 //Implementacion de funciones
@@ -218,6 +240,20 @@ SimbolosRowPtr buscarAddrEnTDS(int a){
     }while(nodo!=nullptr);
     return nodo;
 }
+
+TempRowPtr buscarAddrEnTmp(int a){
+    TempRowPtr nodo;
+    nodo = temporales;
+    do{
+        if(nodo->addr==a){
+            break;
+        }else{
+            nodo = nodo->next2;
+        }
+    }while(nodo!=nullptr);
+    return nodo;
+}
+
 
 int obtenerAvail(){
 
@@ -1146,4 +1182,261 @@ cadena_tipo obtenerValor(int dir){
             }
         }
     }
+}
+
+//-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- //
+
+static int cp = 1; //contador del programa
+
+bool recuperarBooleano(int addr){
+    if(addr>=3500&&addr<=5550){
+        //es variable
+        SimbolosRowPtr nodo =  buscarAddrEnTDS(addr);
+        return (bool)(*(nodo->apram));
+    }else{
+        if(addr>=5550&&addr<7000){
+            //es temp
+            TempRowPtr nodo = buscarAddrEnTmp(addr);
+            return (bool)(*(nodo->apram));
+        }else{
+            if(addr>=7000&&addr<=8000){
+                //es constante
+                ConstantesRowPtr nodo = buscarAddrEnTDC(addr);
+                return (bool)(*(nodo->apram));
+            }
+        }
+
+    }
+}
+
+void inicializarValores(){
+
+    //inicializar tabla de simbolos
+    if(TDS!=nullptr){
+        SimbolosRowPtr node = TDS;
+        do{
+            //inicializar
+            node = node->next2;
+        }while(node!=nullptr);
+    }
+
+    //inicializar tabla de constantes
+    if(TDC!=nullptr){
+        ConstantesRowPtr node = TDC;
+        do{
+
+            unsigned char *e;
+            //inicializar
+            switch(node->type){
+                case ENTERO:
+                {
+                    //praseint
+                    int num = std::stoi(node->desc);
+
+                    unsigned char *pt;
+                    pt = (unsigned char*)num;
+
+                    node->apram = pt;
+
+
+                    break;
+                }
+                case FLOTANTE:
+                {
+                    //flotante
+                    unsigned char *pt;
+                    float num = std::stof(node->desc);
+
+                    pt = (unsigned char*)&num;
+
+                     node->apram = pt;
+
+                    break;
+                }
+                case BOOLEANO:
+                {
+                    std::stoi(node->desc);
+//                    e = (char*)malloc(1);
+                    break;
+                }
+                case CARACTER:
+                {
+                    std::stoi(node->desc);
+//                    e = (char*)malloc(1);
+                    break;
+                }
+                case CADENA:
+                {
+//                    e = (char*)malloc(255);
+                    break;
+                }
+             }
+
+            //guardamos direccion del apuntador
+            node->apram = e;
+            node = node->next2;
+        }while(node!=nullptr);
+    }
+
+}
+
+cadena_tipo recuperarValor(int addr){
+    if(addr>=3500&&addr<=5550){
+
+        SimbolosRowPtr a = buscarAddrEnTDS(addr);
+
+        if(a->type==ENTERO){
+
+            int *c = (int*)a->apram;
+
+            cadena_tipo str = std::to_string(*c);
+            return str;
+        }  
+    }else{
+        if(addr>=5550&&addr<7000){
+            //es temp
+        }else{
+            if(addr>=7000&&addr<=8000){
+                //es constante
+            }
+        }
+
+    }
+}
+
+
+void guardarValor(QString tx, int addr){
+
+    SimbolosRowPtr var = buscarAddrEnTDS(addr);
+
+    switch(var->type){
+        case ENTERO:
+
+        //praseint
+        int num = std::stoi(tx.toStdString());
+        int *nump = (int*)malloc(4);
+
+        *nump = num;
+
+        unsigned char *pt;
+        pt = (unsigned char*)nump;
+
+        var->apram = pt;
+        break;
+
+    }
+
+
+}
+
+
+void ejecutarCuadruplo(CuadruploPtr cuadruplo){
+    switch (cuadruplo->cop) {
+        case INPUT:
+        {
+
+            bool ok;
+            QString text = QInputDialog::getText(0,"Ingrese valor","Ingrese un valor: ",QLineEdit::Normal,"", &ok);
+            if (ok && !text.isEmpty()){
+//                cout<< text.toStdString()<<endl;
+                guardarValor(text, cuadruplo->resl);
+            }
+            cp++;
+        }
+        break;
+        case OUTPUT:
+        {
+            cadena_tipo cad = recuperarValor(cuadruplo->resl);
+            outputConsole->appendPlainText(QString::fromStdString(cad));
+            break;
+        }
+        case ASIG:
+        {
+
+            //recupera apuntador del valor de la constante
+//            unsigned char *ptr = buscarAddrEnTDC(cuadruplo->op1)->apram;
+
+            //busca variable y actualiza apuntador
+//            buscarAddrEnTDS(cuadruplo->resl)->apram = ptr;
+
+            cp++;
+        }
+        break;
+        case OR:
+            cp++;
+            break;
+        case AND:
+        cp++;
+                break;
+        case DIF:
+        cp++;
+                break;
+        case PLUS:
+        cp++;
+                break;
+        case MINUS:
+        cp++;
+                break;
+        case MULT:
+        cp++;
+                break;
+        case DIV:
+        cp++;
+                break;
+        case MODULUS:
+        cp++;
+                break;
+        case EQUALS:
+        cp++;
+                break;
+        case NOTEQUALS:
+        cp++;
+                break;
+        case LESSTHAN:
+        cp++;
+                break;
+        case LESSOREQUALSTHAN:
+        cp++;
+                break;
+        case GREATERTHAN:
+        cp++;
+                break;
+        case GREATEROREQUALSTHAN:
+        cp++;
+                break;
+        case GOTO:
+            cp = cuadruplo->resl;
+                break;
+        case GOTOFALSO:
+            if(recuperarBooleano(cuadruplo->op1)==false){
+                cp = cuadruplo->resl;
+            }else{
+                cp++;
+            }
+        break;
+        case GOTOVERDADERO:
+            if(recuperarBooleano(cuadruplo->op1)==true){
+                cp = cuadruplo->resl;
+            }else{
+                cp++;
+            }
+        break;
+    }
+}
+
+void ejecutarStep(){
+    CuadruploPtr cuadruplo;
+
+//    do{
+        //buscar instruccion a ejecutar
+        cuadruplo = BuscarCuadruplo(cp);
+    if(cuadruplo!=nullptr){
+        cuadruplos_ui->selectRow(cuadruplo->key-1);
+        ejecutarCuadruplo(cuadruplo);
+    }
+
+//    }while(cuadruplo!=nullptr);
+
+//    cout<<cp<<endl;
+
 }

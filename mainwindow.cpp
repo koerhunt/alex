@@ -96,6 +96,8 @@ MainWindow::MainWindow(QWidget *parent) :
     asignarTablaCuadruplos(ui->tableWidget_2);
     asignarTablaSimbolos(ui->tableWidget_3);
     asignarTablaCostantes(ui->tableWidget_4);
+
+    asingarConsolaDeSalida(ui->outputConsoleR);
 }
 void MainWindow::toggled(){
     cout<<"clicked"<<endl;
@@ -628,3 +630,8 @@ void imprimirStackTipos(std::stack<tipos> stk){
 
 }
 
+
+void MainWindow::on_pushButton_4_clicked()
+{
+    ejecutarStep();
+}
