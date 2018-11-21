@@ -635,3 +635,8 @@ void MainWindow::on_pushButton_4_clicked()
 {
     ejecutarStep();
 }
+
+void MainWindow::on_pushButton_5_clicked()
+{
+    inicializarValores();
+}

@@ -158,6 +158,7 @@ static TempRowPtr temporales;
 cadena_tipo obtenerTipo(tipos);
 cadena_tipo obtenerCOP(cops);
 cadena_tipo obtenerValor(int);
+cadena_tipo recuperarValor(int);
 
 void generarCuadruplo(cops,int,int,int);
 CuadruploPtr buscarCuadruplo(int );
@@ -348,6 +349,11 @@ void imprimirCuadruplos(){
 //imprme la tabla de simbolos
 void imprimirTDS(){
 
+    int i = simbolos_ui->rowCount();
+    for(int j=0;j<=i;j++){
+        simbolos_ui->removeRow(0);
+    }
+
     if(TDS!=nullptr){
         SimbolosRowPtr node = TDS;
         do{
@@ -355,6 +361,7 @@ void imprimirTDS(){
             simbolos_ui->insertRow(simbolos_ui->rowCount());
             simbolos_ui->setItem(simbolos_ui->rowCount()-1,0,new QTableWidgetItem(QString::number(node->count)));
             simbolos_ui->setItem(simbolos_ui->rowCount()-1,1,new QTableWidgetItem(QString::number(node->type)));
+            simbolos_ui->setItem(simbolos_ui->rowCount()-1,2,new QTableWidgetItem(QString::fromStdString(recuperarValor(node->count))));
             simbolos_ui->setItem(simbolos_ui->rowCount()-1,3,new QTableWidgetItem(QString::fromStdString(node->desc)));
 
             node = node->next2;
@@ -367,6 +374,12 @@ void imprimirTDS(){
 //imprme la tabla de ctes
 void imprimirTDC(){
 
+    int i = constantes_ui->rowCount();
+    for(int j=0;j<=i;j++){
+        constantes_ui->removeRow(0);
+    }
+
+
     if(TDC!=nullptr){
         ConstantesRowPtr node = TDC;
         do{
@@ -375,6 +388,7 @@ void imprimirTDC(){
             constantes_ui->setItem(constantes_ui->rowCount()-1,0,new QTableWidgetItem(QString::number(node->count)));
             constantes_ui->setItem(constantes_ui->rowCount()-1,1,new QTableWidgetItem(QString::number(node->type)));
             constantes_ui->setItem(constantes_ui->rowCount()-1,2,new QTableWidgetItem(QString::fromStdString(node->desc)));
+            constantes_ui->setItem(constantes_ui->rowCount()-1,3,new QTableWidgetItem(QString::fromStdString(recuperarValor(node->count))));
 
             node = node->next2;
         }while(node!=nullptr);
@@ -1211,72 +1225,134 @@ bool recuperarBooleano(int addr){
 
 void inicializarValores(){
 
-    //inicializar tabla de simbolos
+    //inicializar tabla de variables en 0s
     if(TDS!=nullptr){
+
         SimbolosRowPtr node = TDS;
+
         do{
-            //inicializar
+
+            switch(node->type){
+                case ENTERO:
+                {
+                    //praseint
+                    int *nump = (int*)malloc(4);
+                    *nump=0;
+                    unsigned char *pt = (unsigned char*)nump;
+                    node->apram = pt;
+                    break;
+                }
+                case FLOTANTE:
+                {
+                    //prasefloat
+                    float *nump = (float*)malloc(4);
+                    *nump=0.0;
+                    unsigned char *pt = (unsigned char*)nump;
+                    node->apram = pt;
+                    break;
+                }
+                case BOOLEANO:
+                {
+                    //prasebool
+                    bool *nump = (bool*)malloc(1);
+                    *nump=false;
+                    unsigned char *pt = (unsigned char*)nump;
+                    node->apram = pt;
+                    break;
+                }
+                case CARACTER:
+                {
+                    //prasefloat
+                    char *nump = (char*)malloc(1);
+                    *nump=0x00;
+                    unsigned char *pt = (unsigned char*)nump;
+                    node->apram = pt;
+                    break;
+                }
+                case CADENA:
+                {
+                    //TODO PARSE STRING
+                    break;
+                }
+             }
+
             node = node->next2;
         }while(node!=nullptr);
     }
 
     //inicializar tabla de constantes
     if(TDC!=nullptr){
+
         ConstantesRowPtr node = TDC;
+
         do{
 
-            unsigned char *e;
-            //inicializar
             switch(node->type){
                 case ENTERO:
                 {
+
                     //praseint
                     int num = std::stoi(node->desc);
-
+                    int *nump = (int*)malloc(4);
+                    *nump = num;
                     unsigned char *pt;
-                    pt = (unsigned char*)num;
-
+                    pt = (unsigned char*)nump;
                     node->apram = pt;
-
-
                     break;
+
+
                 }
                 case FLOTANTE:
                 {
-                    //flotante
-                    unsigned char *pt;
-                    float num = std::stof(node->desc);
-
-                    pt = (unsigned char*)&num;
-
-                     node->apram = pt;
-
+                    //prasefloat
+                    float *nump = (float*)malloc(4);
+                    *nump = std::stof(node->desc);
+                    unsigned char *pt = (unsigned char*)nump;
+                    node->apram = pt;
                     break;
                 }
                 case BOOLEANO:
                 {
-                    std::stoi(node->desc);
-//                    e = (char*)malloc(1);
+                    //prasebool
+                    bool *nump = (bool*)malloc(1);
+
+                    //interpretar valor
+                    if(node->desc=="verdadero"){
+                        *nump = true;
+                    }else{
+                        if(node->desc=="falso"){
+                            *nump = false;
+                        }else{
+                            *nump = std::stoi(node->desc);
+                        }
+                    }
+
+                    unsigned char *pt = (unsigned char*)nump;
+                    node->apram = pt;
                     break;
                 }
                 case CARACTER:
                 {
-                    std::stoi(node->desc);
-//                    e = (char*)malloc(1);
+                    //prasefloat
+                    char *nump = (char*)malloc(1);
+                    *nump = std::stoi(node->desc);
+                    unsigned char *pt = (unsigned char*)nump;
+                    node->apram = pt;
                     break;
                 }
                 case CADENA:
                 {
-//                    e = (char*)malloc(255);
+                    //TODO PARSE STRING
                     break;
                 }
              }
 
-            //guardamos direccion del apuntador
-            node->apram = e;
             node = node->next2;
         }while(node!=nullptr);
     }
+
+    imprimirTDS();
+    imprimirTDC();
 
 }
 
@@ -1284,6 +1360,9 @@ cadena_tipo recuperarValor(int addr){
     if(addr>=3500&&addr<=5550){
 
         SimbolosRowPtr a = buscarAddrEnTDS(addr);
+        if(a->apram==nullptr){
+            return "null";
+        }
 
         if(a->type==ENTERO){
 
@@ -1297,7 +1376,18 @@ cadena_tipo recuperarValor(int addr){
             //es temp
         }else{
             if(addr>=7000&&addr<=8000){
-                //es constante
+                ConstantesRowPtr a = buscarAddrEnTDC(addr);
+                if(a->apram==nullptr){
+                    return "null";
+                }
+
+                if(a->type==ENTERO){
+
+                    int *c = (int*)a->apram;
+
+                    cadena_tipo str = std::to_string(*c);
+                    return str;
+                }
             }
         }
 
@@ -1338,7 +1428,6 @@ void ejecutarCuadruplo(CuadruploPtr cuadruplo){
             bool ok;
             QString text = QInputDialog::getText(0,"Ingrese valor","Ingrese un valor: ",QLineEdit::Normal,"", &ok);
             if (ok && !text.isEmpty()){
-//                cout<< text.toStdString()<<endl;
                 guardarValor(text, cuadruplo->resl);
             }
             cp++;
@@ -1354,10 +1443,13 @@ void ejecutarCuadruplo(CuadruploPtr cuadruplo){
         {
 
             //recupera apuntador del valor de la constante
-//            unsigned char *ptr = buscarAddrEnTDC(cuadruplo->op1)->apram;
+            ConstantesRowPtr pt =  buscarAddrEnTDC(cuadruplo->op1);
 
             //busca variable y actualiza apuntador
-//            buscarAddrEnTDS(cuadruplo->resl)->apram = ptr;
+            SimbolosRowPtr pt2 = buscarAddrEnTDS(cuadruplo->resl);
+
+            //se vacia el valor de la constante a la variable
+            *pt2->apram = *pt->apram;
 
             cp++;
         }
@@ -1427,16 +1519,13 @@ void ejecutarCuadruplo(CuadruploPtr cuadruplo){
 void ejecutarStep(){
     CuadruploPtr cuadruplo;
 
-//    do{
-        //buscar instruccion a ejecutar
         cuadruplo = BuscarCuadruplo(cp);
     if(cuadruplo!=nullptr){
         cuadruplos_ui->selectRow(cuadruplo->key-1);
         ejecutarCuadruplo(cuadruplo);
     }
 
-//    }while(cuadruplo!=nullptr);
-
-//    cout<<cp<<endl;
+    imprimirTDS();
+    imprimirTDC();
 
 }
